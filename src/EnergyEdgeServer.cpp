@@ -1,9 +1,12 @@
-#include "EnergyEdgeServer.h"
-#include "BaseMeterChannel.h"
+// NOTE: This translation unit deliberately does NOT include any KNX/OpenKNX header.
+// eModbus's Modbus::Error and the KNX stack's ComFlag::Error collide (both leak an
+// "Error" identifier), so eModbus and KNX must never share a TU. The rest of the
+// module talks to us only through the KNX-free ModbusSource interface.
+#include <Arduino.h>
 #include "ModbusServerTCPasync.h"
+#include "EnergyEdgeServer.h"
+#include "ModbusSource.h"
 
-// Per-port server bookkeeping: we keep the port alongside the instance so we can
-// reuse one listener for several channels (Unit-IDs) on the same port.
 namespace
 {
 struct PortServer
@@ -16,11 +19,16 @@ std::vector<PortServer> g_portServers;
 // Modbus max registers per read response (FC3/FC4).
 constexpr uint16_t MODBUS_MAX_WORDS = 125;
 
-ModbusMessage makeWorker(BaseMeterChannel* ch, ModbusMessage request)
+ModbusMessage makeWorker(ModbusSource* source, ModbusMessage request)
 {
     uint16_t addr = 0, words = 0;
     request.get(2, addr);
     request.get(4, words);
+
+    // Diagnose: zeigt exakt, welche Unit-ID / Register der EX.1 abfragt.
+    log_i("EnergyEdge req: unit=%d fc=%d addr=%d words=%d",
+          request.getServerID(), request.getFunctionCode(), addr, words);
+    source->onModbusRequest(addr, words); // Status-KOs + Registermitschnitt
 
     if (words == 0 || words > MODBUS_MAX_WORDS)
     {
@@ -30,7 +38,7 @@ ModbusMessage makeWorker(BaseMeterChannel* ch, ModbusMessage request)
     }
 
     uint16_t regs[MODBUS_MAX_WORDS];
-    ch->buildRegisters(addr, words, regs);
+    source->buildRegisters(addr, words, regs);
 
     ModbusMessage response;
     response.add(request.getServerID(), request.getFunctionCode(), (uint8_t)(words * 2));
@@ -51,26 +59,26 @@ ModbusServerTCPasync* EnergyEdgeServer::serverForPort(uint16_t port)
     server->start(port, 4, 20000);
     g_portServers.push_back({port, server});
     _servers.push_back(server);
-    logInfo("EnergyEdge", "Modbus TCP server listening on port %d", port);
+    log_i("EnergyEdge: Modbus TCP server listening on port %d", port);
     return server;
 }
 
-void EnergyEdgeServer::start(BaseMeterChannel** channels, uint8_t channelCount)
+void EnergyEdgeServer::start(ModbusSource** sources, uint8_t count)
 {
     if (_started)
         return;
 
-    for (uint8_t i = 0; i < channelCount; i++)
+    for (uint8_t i = 0; i < count; i++)
     {
-        BaseMeterChannel* ch = channels[i];
-        if (ch == nullptr)
+        ModbusSource* source = sources[i];
+        if (source == nullptr)
             continue;
 
-        ModbusServerTCPasync* server = serverForPort(ch->port());
-        server->registerWorker(ch->unitId(), (FunctionCode)ch->functionCode(),
-                               [ch](ModbusMessage request) { return makeWorker(ch, request); });
-        logInfo("EnergyEdge", "Registered unit %d fc %d on port %d",
-                ch->unitId(), ch->functionCode(), ch->port());
+        ModbusServerTCPasync* server = serverForPort(source->port());
+        server->registerWorker(source->unitId(), (FunctionCode)source->functionCode(),
+                               [source](ModbusMessage request) { return makeWorker(source, request); });
+        log_i("EnergyEdge: registered unit %d fc %d on port %d",
+              source->unitId(), source->functionCode(), source->port());
     }
 
     _started = true;

@@ -1,12 +1,12 @@
 #pragma once
 #include "OpenKNX.h"
+#include "ModbusSource.h"
 
 // Category values (ETS PT-EEXCategory enumeration). Primary, user-facing.
-#define EEX_CAT_ENERGYMETER 0 // Energiemessung / SmartMeter
-#define EEX_CAT_SMARTPLUG   1 // SmartPlug
-#define EEX_CAT_APPLIANCE   2 // Haushaltsgerät
-#define EEX_CAT_SWITCH      3 // Schalter
-#define EEX_CAT_INVERTER    4 // Wechselrichter
+#define EEX_CAT_ENERGYMETER 0 // Energiemessung (nur Wirkleistung)
+#define EEX_CAT_SMARTMETER  1 // Smart Meter (zusätzlich Bezug/Einspeisung)
+#define EEX_CAT_SWITCH      2 // Schalter/Virtual Switch (EX.1 -> KNX)
+#define EEX_CAT_INVERTER    3 // Wechselrichter
 
 // Consumer profile values (ETS PT-EEXConsumerProfile). Inverter category implies
 // SolarEdge SunSpec; consumer categories choose between these two.
@@ -21,7 +21,7 @@
 // reference add-ons' float_to_regs(struct.pack(">f", value)).
 void eexFloatToRegsBE(float value, uint16_t& highWord, uint16_t& lowWord);
 
-class BaseMeterChannel : public OpenKNX::Channel
+class BaseMeterChannel : public OpenKNX::Channel, public ModbusSource
 {
   protected:
     uint8_t _channelIndex;
@@ -36,6 +36,21 @@ class BaseMeterChannel : public OpenKNX::Channel
     // read by the Modbus worker (AsyncTCP task). 32-bit aligned -> atomic on ESP32.
     volatile float _watt = 0.0f;
     volatile uint32_t _lastUpdateMs = 0;
+
+    // Modbus request tracking (status KOs). Written by the AsyncTCP worker
+    // (onModbusRequest), read/consumed by the module loop.
+    volatile uint32_t _lastRequestMs = 0;
+    volatile bool _requestSeen = false;
+
+    // Diagnose: bis zu 8 distinkte (Startadresse, Wortanzahl), die der EX.1 an dieser
+    // Unit-ID liest (Registermitschnitt, z.B. für die Smart-Meter-Energieregister).
+    struct ReqRec
+    {
+        uint16_t addr;
+        uint16_t words;
+    };
+    ReqRec _reqLog[8];
+    volatile uint8_t _reqLogCount = 0;
 
     // Helper for concrete profiles: set out[addr-base] = value if base is inside
     // the requested window [reqAddr, reqAddr+words).
@@ -64,6 +79,32 @@ class BaseMeterChannel : public OpenKNX::Channel
 
     // Current power in W after watchdog + invert + scale.
     float currentWatt();
+
+    // --- Modbus request tracking (status KOs) + Registermitschnitt ---
+    void onModbusRequest(uint16_t addr, uint16_t words) override
+    {
+        _lastRequestMs = millis();
+        _requestSeen = true;
+        for (uint8_t i = 0; i < _reqLogCount; i++)
+            if (_reqLog[i].addr == addr && _reqLog[i].words == words)
+                return; // schon erfasst
+        if (_reqLogCount < 8)
+        {
+            _reqLog[_reqLogCount].addr = addr;
+            _reqLog[_reqLogCount].words = words;
+            _reqLogCount = (uint8_t)(_reqLogCount + 1); // kein ++ auf volatile (C++20)
+        }
+    }
+    uint32_t lastRequestMs() const { return _lastRequestMs; }
+    bool consumeRequestSeen()
+    {
+        bool s = _requestSeen;
+        _requestSeen = false;
+        return s;
+    }
+    uint8_t reqLogCount() const { return _reqLogCount; }
+    uint16_t reqLogAddr(uint8_t i) const { return _reqLog[i].addr; }
+    uint16_t reqLogWords(uint8_t i) const { return _reqLog[i].words; }
 
     // --- optional persisted per-channel state (SolarEdge energy counter) ---
     virtual bool hasFlashState() const { return false; }
