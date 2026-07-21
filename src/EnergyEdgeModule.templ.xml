@@ -57,6 +57,18 @@
                 <Memory CodeSegment="%MID%" Offset="40" BitOffset="0" />
                 <Parameter Id="%AID%_UP-%TT%%CC%008" Name="CH%C%Serial" ParameterType="%AID%_PT-EEXString32" Offset="0" BitOffset="0" Text="SunSpec Seriennummer" Value="7E123456" />
               </Union>
+
+              <!-- Virtual Switch _id (Byte 72-103, 32 Zeichen) -->
+              <Union SizeInBit="256">
+                <Memory CodeSegment="%MID%" Offset="72" BitOffset="0" />
+                <Parameter Id="%AID%_UP-%TT%%CC%009" Name="CH%C%DeviceId" ParameterType="%AID%_PT-EEXString32" Offset="0" BitOffset="0" Text="Virtual Switch ID (_id)" Value="" />
+              </Union>
+
+              <!-- KO 'Letzte Abfrage' verwenden (Byte 104) -->
+              <Union SizeInBit="8">
+                <Memory CodeSegment="%MID%" Offset="104" BitOffset="0" />
+                <Parameter Id="%AID%_UP-%TT%%CC%010" Name="CH%C%ShowLastQuery" ParameterType="%AID%_PT-EEXYesNo" Offset="0" BitOffset="0" Text="Status KO 'Letzte Abfrage' verwenden" Value="1" />
+              </Union>
             </Parameters>
 
             <ParameterRefs>
@@ -69,15 +81,30 @@
               <ParameterRef Id="%AID%_UP-%TT%%CC%006_R-%TT%%CC%00601" RefId="%AID%_UP-%TT%%CC%006" />
               <ParameterRef Id="%AID%_UP-%TT%%CC%007_R-%TT%%CC%00701" RefId="%AID%_UP-%TT%%CC%007" />
               <ParameterRef Id="%AID%_UP-%TT%%CC%008_R-%TT%%CC%00801" RefId="%AID%_UP-%TT%%CC%008" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%009_R-%TT%%CC%00901" RefId="%AID%_UP-%TT%%CC%009" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%010_R-%TT%%CC%01001" RefId="%AID%_UP-%TT%%CC%010" />
             </ParameterRefs>
 
             <ComObjectTable>
-              <!-- KO 0: Wirkleistung (Eingang vom KNX-Bus, DPT 14.056 W) -->
+              <!-- KO 0: Wirkleistung (Eingang vom KNX-Bus, DPT 14.056 W) - Zähler-Kategorien -->
               <ComObject Id="%AID%_O-%TT%%CC%000" Number="%K0%" Name="CH%C%Wirkleistung" Text="" FunctionText="" ObjectSize="4 Bytes" DatapointType="DPST-14-56" ReadFlag="Disabled" WriteFlag="Enabled" CommunicationFlag="Enabled" TransmitFlag="Disabled" UpdateFlag="Enabled" ReadOnInitFlag="Enabled" />
+              <!-- KO 1: Schaltausgang (Ausgang an KNX-Aktor, DPT 1.001) - Schalter/Virtual Switch -->
+              <ComObject Id="%AID%_O-%TT%%CC%001" Number="%K1%" Name="CH%C%Schaltausgang" Text="" FunctionText="" ObjectSize="1 Bit" DatapointType="DPST-1-1" ReadFlag="Disabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" />
+              <!-- KO 2: Letzte Modbus-Abfrage dieses Kanals (Ausgang, DPT 19.001) - Zähler-Kategorien -->
+              <ComObject Id="%AID%_O-%TT%%CC%002" Number="%K2%" Name="CH%C%LetzteAbfrage" Text="" FunctionText="" ObjectSize="8 Bytes" DatapointType="DPST-19-1" ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" />
             </ComObjectTable>
 
             <ComObjectRefs>
-              <ComObjectRef Id="%AID%_O-%TT%%CC%000_R-%TT%%CC%00001" RefId="%AID%_O-%TT%%CC%000" Text="{{0:Zähler %C%}}: Wirkleistung" FunctionText="Zähler %C%: Eingang, Wirkleistung (W)" TextParameterRefId="%AID%_P-%TT%%CC%000_R-%TT%%CC%00001" />
+              <!-- Wirkleistung-Refs je Zähler-Kategorie (gleiche KO-Nummer), damit die Objektfunktion die Kategorie widerspiegelt. -->
+              <ComObjectRef Id="%AID%_O-%TT%%CC%000_R-%TT%%CC%00001" RefId="%AID%_O-%TT%%CC%000" Text="{{0:Energiemessung %C%}}: Wirkleistung" FunctionText="Energiemessung %C%: Eingang, Wirkleistung (W)" TextParameterRefId="%AID%_P-%TT%%CC%000_R-%TT%%CC%00001" />
+              <ComObjectRef Id="%AID%_O-%TT%%CC%000_R-%TT%%CC%00002" RefId="%AID%_O-%TT%%CC%000" Text="{{0:Smart Meter %C%}}: Wirkleistung"    FunctionText="Smart Meter %C%: Eingang, Wirkleistung (W)"    TextParameterRefId="%AID%_P-%TT%%CC%000_R-%TT%%CC%00001" />
+              <ComObjectRef Id="%AID%_O-%TT%%CC%000_R-%TT%%CC%00003" RefId="%AID%_O-%TT%%CC%000" Text="{{0:Wechselrichter %C%}}: Wirkleistung" FunctionText="Wechselrichter %C%: Eingang, Wirkleistung (W)" TextParameterRefId="%AID%_P-%TT%%CC%000_R-%TT%%CC%00001" />
+              <!-- Schaltausgang-Ref (Schalter/Virtual Switch) -->
+              <ComObjectRef Id="%AID%_O-%TT%%CC%001_R-%TT%%CC%00101" RefId="%AID%_O-%TT%%CC%001" Text="{{0:Schalter %C%}}: Schaltausgang" FunctionText="Schalter %C%: Ausgang, Schalten" TextParameterRefId="%AID%_P-%TT%%CC%000_R-%TT%%CC%00001" />
+              <!-- Letzte-Abfrage-Refs je Zähler-Kategorie (gleiche KO-Nummer) -->
+              <ComObjectRef Id="%AID%_O-%TT%%CC%002_R-%TT%%CC%00201" RefId="%AID%_O-%TT%%CC%002" Text="{{0:Energiemessung %C%}}: Letzte Abfrage" FunctionText="Energiemessung %C%: Ausgang, Letzte Modbus-Abfrage" TextParameterRefId="%AID%_P-%TT%%CC%000_R-%TT%%CC%00001" />
+              <ComObjectRef Id="%AID%_O-%TT%%CC%002_R-%TT%%CC%00202" RefId="%AID%_O-%TT%%CC%002" Text="{{0:Smart Meter %C%}}: Letzte Abfrage"    FunctionText="Smart Meter %C%: Ausgang, Letzte Modbus-Abfrage"    TextParameterRefId="%AID%_P-%TT%%CC%000_R-%TT%%CC%00001" />
+              <ComObjectRef Id="%AID%_O-%TT%%CC%002_R-%TT%%CC%00203" RefId="%AID%_O-%TT%%CC%002" Text="{{0:Wechselrichter %C%}}: Letzte Abfrage" FunctionText="Wechselrichter %C%: Ausgang, Letzte Modbus-Abfrage" TextParameterRefId="%AID%_P-%TT%%CC%000_R-%TT%%CC%00001" />
             </ComObjectRefs>
           </Static>
 
@@ -86,28 +113,44 @@
               <!-- Kanalanzahl steuert Sichtbarkeit -->
               <choose ParamRefId="%AID%_UP-%TT%00000_R-%TT%0000001">
                 <when test="&gt;=%C%">
-                  <ParameterBlock Id="%AID%_PB-nnn" Name="f%CC%EEX" Text="Zähler %C%: {{0: ...}}" TextParameterRefId="%AID%_P-%TT%%CC%000_R-%TT%%CC%00001" Icon="meter-electric-outline" ShowInComObjectTree="true">
+                  <ParameterBlock Id="%AID%_PB-nnn" Name="f%CC%EEX" Text="Kanal %C%: {{0: ...}}" TextParameterRefId="%AID%_P-%TT%%CC%000_R-%TT%%CC%00001" Icon="meter-electric-outline" ShowInComObjectTree="true">
 
-                    <ParameterSeparator Id="%AID%_PS-nnn" Text="Zähler %C%" UIHint="Headline" />
+                    <ParameterSeparator Id="%AID%_PS-nnn" Text="Kanal %C%" UIHint="Headline" />
                     <ParameterRefRef RefId="%AID%_P-%TT%%CC%000_R-%TT%%CC%00001" />
                     <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
 
                     <!-- Kategorie / Profil -->
                     <ParameterSeparator Id="%AID%_PS-nnn" Text="Gerät" UIHint="Headline" />
-                    <ParameterRefRef RefId="%AID%_UP-%TT%%CC%001_R-%TT%%CC%00101" />
-                    <!-- Modbus-Profil nur bei Verbraucher-Kategorien (nicht Wechselrichter) -->
+                    <ParameterRefRef RefId="%AID%_UP-%TT%%CC%001_R-%TT%%CC%00101" HelpContext="EEX-Kategorie" />
                     <choose ParamRefId="%AID%_UP-%TT%%CC%001_R-%TT%%CC%00101">
-                      <when test="!=4">
-                        <ParameterRefRef RefId="%AID%_UP-%TT%%CC%002_R-%TT%%CC%00201" />
+                      <!-- Modbus-Profil nur bei Verbraucher-Zählern (Energiemessung, Smart Meter) -->
+                      <when test="&lt;2">
+                        <ParameterRefRef RefId="%AID%_UP-%TT%%CC%002_R-%TT%%CC%00201" HelpContext="EEX-Modbus-Profil" />
                       </when>
-                      <when test="=4">
+                      <!-- Schalter/Virtual Switch: Hinweis + _id -->
+                      <when test="=2">
+                        <ParameterSeparator Id="%AID%_PS-nnn" Text="Schalter/Virtual Switch: der Zustand wird über die lokale EX.1-API (Virtual Switch) gelesen und schaltet einen KNX-Aktorkanal. Die PV-Überschuss-Logik liegt im EX.1." UIHint="Information" />
+                        <ParameterRefRef RefId="%AID%_UP-%TT%%CC%009_R-%TT%%CC%00901" HelpContext="EEX-Virtual-Switch-ID" />
+                      </when>
+                      <!-- Wechselrichter: SolarEdge -->
+                      <when test="=3">
                         <ParameterSeparator Id="%AID%_PS-nnn" Text="Profil: SolarEdge (SunSpec) – emuliert einen einphasigen Wechselrichter." UIHint="Information" />
                       </when>
                     </choose>
 
-                    <!-- Modbus -->
-                    <ParameterSeparator Id="%AID%_PS-nnn" Text="Modbus" UIHint="Headline" />
-                    <ParameterRefRef RefId="%AID%_UP-%TT%%CC%003_R-%TT%%CC%00301" />
+                    <!-- Modbus (nur Zähler-Kategorien, nicht Schalter) -->
+                    <choose ParamRefId="%AID%_UP-%TT%%CC%001_R-%TT%%CC%00101">
+                      <when test="!=2">
+                        <ParameterSeparator Id="%AID%_PS-nnn" Text="Modbus" UIHint="Headline" />
+                        <ParameterRefRef RefId="%AID%_UP-%TT%%CC%003_R-%TT%%CC%00301" HelpContext="EEX-Unit-ID" />
+                      </when>
+                    </choose>
+                    <!-- Hinweis Sub-Meter/ZEV nur bei Smart Meter -->
+                    <choose ParamRefId="%AID%_UP-%TT%%CC%001_R-%TT%%CC%00101">
+                      <when test="=1">
+                        <ParameterSeparator Id="%AID%_PS-nnn" Text="Als 'Sub-Meter' / ZEV im EX.1 einbinden: dort gibt es kein Geräte-ID-Feld, der EX.1 fragt immer Unit-ID 1 ab und unterscheidet nur über die IP (ein Sub-Meter pro IP). Für diesen Fall Unit-ID 1 setzen." UIHint="Information" />
+                      </when>
+                    </choose>
                     <!-- SDM630 nutzt fest Unit-ID 1 -->
                     <choose ParamRefId="%AID%_UP-%TT%%CC%002_R-%TT%%CC%00201">
                       <when test="=1">
@@ -117,22 +160,42 @@
 
                     <!-- SunSpec-Identität nur bei Wechselrichter -->
                     <choose ParamRefId="%AID%_UP-%TT%%CC%001_R-%TT%%CC%00101">
-                      <when test="=4">
+                      <when test="=3">
                         <ParameterSeparator Id="%AID%_PS-nnn" Text="SunSpec-Identität" UIHint="Headline" />
-                        <ParameterRefRef RefId="%AID%_UP-%TT%%CC%007_R-%TT%%CC%00701" />
-                        <ParameterRefRef RefId="%AID%_UP-%TT%%CC%008_R-%TT%%CC%00801" />
+                        <ParameterRefRef RefId="%AID%_UP-%TT%%CC%007_R-%TT%%CC%00701" HelpContext="EEX-SolarEdge-Identitaet" />
+                        <ParameterRefRef RefId="%AID%_UP-%TT%%CC%008_R-%TT%%CC%00801" HelpContext="EEX-SolarEdge-Identitaet" />
                       </when>
                     </choose>
 
-                    <!-- Verhalten -->
-                    <ParameterSeparator Id="%AID%_PS-nnn" Text="Verhalten" UIHint="Headline" />
-                    <ParameterRefRef RefId="%AID%_UP-%TT%%CC%005_R-%TT%%CC%00501" />
-                    <ParameterRefRef RefId="%AID%_UP-%TT%%CC%004_R-%TT%%CC%00401" />
-                    <ParameterRefRef RefId="%AID%_UP-%TT%%CC%006_R-%TT%%CC%00601" />
+                    <!-- Verhalten (nur Zähler-Kategorien) -->
+                    <choose ParamRefId="%AID%_UP-%TT%%CC%001_R-%TT%%CC%00101">
+                      <when test="!=2">
+                        <ParameterSeparator Id="%AID%_PS-nnn" Text="Verhalten" UIHint="Headline" />
+                        <ParameterRefRef RefId="%AID%_UP-%TT%%CC%005_R-%TT%%CC%00501" HelpContext="EEX-Watchdog" />
+                        <ParameterRefRef RefId="%AID%_UP-%TT%%CC%004_R-%TT%%CC%00401" HelpContext="EEX-Aufbereitung" />
+                        <ParameterRefRef RefId="%AID%_UP-%TT%%CC%006_R-%TT%%CC%00601" HelpContext="EEX-Aufbereitung" />
+                        <ParameterRefRef RefId="%AID%_UP-%TT%%CC%010_R-%TT%%CC%01001" HelpContext="EEX-Letzte-Abfrage" />
+                      </when>
+                    </choose>
 
-                    <!-- KO -->
+                    <!-- KO: Zähler -> Wirkleistung (Objektfunktion je Kategorie), Schalter -> Schaltausgang -->
                     <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
-                    <ComObjectRefRef RefId="%AID%_O-%TT%%CC%000_R-%TT%%CC%00001" />
+                    <choose ParamRefId="%AID%_UP-%TT%%CC%001_R-%TT%%CC%00101">
+                      <when test="=0"><ComObjectRefRef RefId="%AID%_O-%TT%%CC%000_R-%TT%%CC%00001" /></when>
+                      <when test="=1"><ComObjectRefRef RefId="%AID%_O-%TT%%CC%000_R-%TT%%CC%00002" /></when>
+                      <when test="=2"><ComObjectRefRef RefId="%AID%_O-%TT%%CC%001_R-%TT%%CC%00101" /></when>
+                      <when test="=3"><ComObjectRefRef RefId="%AID%_O-%TT%%CC%000_R-%TT%%CC%00003" /></when>
+                    </choose>
+                    <!-- Letzte-Abfrage-KO (nur Zähler-Kategorien, per Checkbox ein-/ausblendbar, Objektfunktion je Kategorie) -->
+                    <choose ParamRefId="%AID%_UP-%TT%%CC%010_R-%TT%%CC%01001">
+                      <when test="=1">
+                        <choose ParamRefId="%AID%_UP-%TT%%CC%001_R-%TT%%CC%00101">
+                          <when test="=0"><ComObjectRefRef RefId="%AID%_O-%TT%%CC%002_R-%TT%%CC%00201" /></when>
+                          <when test="=1"><ComObjectRefRef RefId="%AID%_O-%TT%%CC%002_R-%TT%%CC%00202" /></when>
+                          <when test="=3"><ComObjectRefRef RefId="%AID%_O-%TT%%CC%002_R-%TT%%CC%00203" /></when>
+                        </choose>
+                      </when>
+                    </choose>
 
                   </ParameterBlock>
                 </when>

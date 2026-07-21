@@ -1,6 +1,6 @@
 {
     "name": "OFM-EnergyEdgeModule",
-    "version": "0.1.0",
+    "version": "0.3.0",
     "description": "KNX to Modbus-TCP server bridge exposing KNX power values to the ABB Energy Edge EX.1 (KElectric / SDM630 / SolarEdge SunSpec profiles)",
     "homepage": "https://openknx.de",
     "authors": {
@@ -17,6 +17,7 @@
         "srcFilter": "+<*> -<main.cpp>"
     },
     "dependencies": {
-        "miq19/eModbus": "^1.7.2"
+        "miq19/eModbus": "^1.7.2",
+        "bblanchon/ArduinoJson": "^7.0.4"
     }
 }

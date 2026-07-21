@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-model href="../../Organization/knxprod-support/knx_project_14/knx-editor.xsd" type="application/xml" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <KNX xmlns:op="http://github.com/OpenKNX/OpenKNXproducer" xmlns="http://knx.org/xml/project/14" CreatedBy="KNX MT" ToolVersion="5.1.255.16695">
-  <op:config name="%EEX_NumChannelsDefault%" value="0" />
+  <op:config name="%EEX_NumChannelsDefault%" value="4" />
   <ManufacturerData>
     <Manufacturer>
       <ApplicationPrograms>
@@ -13,11 +13,10 @@
               </ParameterType>
               <ParameterType Id="%AID%_PT-EEXCategory" Name="EEXCategory">
                 <TypeRestriction Base="Value" SizeInBit="8">
-                  <Enumeration Text="Energiemessung / SmartMeter" Value="0" Id="%AID%_PT-EEXCategory_EN-0" />
-                  <Enumeration Text="SmartPlug"                   Value="1" Id="%AID%_PT-EEXCategory_EN-1" />
-                  <Enumeration Text="Haushaltsgerät"              Value="2" Id="%AID%_PT-EEXCategory_EN-2" />
-                  <Enumeration Text="Schalter"                    Value="3" Id="%AID%_PT-EEXCategory_EN-3" />
-                  <Enumeration Text="Wechselrichter"              Value="4" Id="%AID%_PT-EEXCategory_EN-4" />
+                  <Enumeration Text="Energiemessung"          Value="0" Id="%AID%_PT-EEXCategory_EN-0" />
+                  <Enumeration Text="Smart Meter"             Value="1" Id="%AID%_PT-EEXCategory_EN-1" />
+                  <Enumeration Text="Schalter/Virtual Switch" Value="2" Id="%AID%_PT-EEXCategory_EN-2" />
+                  <Enumeration Text="Wechselrichter"          Value="3" Id="%AID%_PT-EEXCategory_EN-3" />
                 </TypeRestriction>
               </ParameterType>
               <ParameterType Id="%AID%_PT-EEXConsumerProfile" Name="EEXConsumerProfile">
@@ -47,11 +46,17 @@
               <ParameterType Id="%AID%_PT-EEXString32" Name="EEXString32">
                 <TypeText SizeInBit="256" />
               </ParameterType>
+              <ParameterType Id="%AID%_PT-EEXChangeMode" Name="EEXChangeMode">
+                <TypeRestriction Base="Value" SizeInBit="8">
+                  <Enumeration Text="absolut"        Value="0" Id="%AID%_PT-EEXChangeMode_EN-0" />
+                  <Enumeration Text="in % (relativ)" Value="1" Id="%AID%_PT-EEXChangeMode_EN-1" />
+                </TypeRestriction>
+              </ParameterType>
             </ParameterTypes>
             <Parameters>
               <Union SizeInBit="8">
                 <Memory CodeSegment="%MID%" Offset="0" BitOffset="0" />
-                <Parameter Id="%AID%_UP-%TT%00000" Name="EEXVisibleChannels" ParameterType="%AID%_PT-EEXNumChannels" Offset="0" BitOffset="0" Text="Aktive Zähler" Value="%EEX_NumChannelsDefault%" SuffixText=" von %N%" />
+                <Parameter Id="%AID%_UP-%TT%00000" Name="EEXVisibleChannels" ParameterType="%AID%_PT-EEXNumChannels" Offset="0" BitOffset="0" Text="Aktive Kanäle" Value="%EEX_NumChannelsDefault%" SuffixText=" von %N%" />
               </Union>
               <Union SizeInBit="16">
                 <Memory CodeSegment="%MID%" Offset="2" BitOffset="0" />
@@ -61,28 +66,202 @@
                 <Memory CodeSegment="%MID%" Offset="4" BitOffset="0" />
                 <Parameter Id="%AID%_UP-%TT%00002" Name="ProducerPort" ParameterType="%AID%_PT-EEXPort" Offset="0" BitOffset="0" Text="Modbus-Port Erzeuger (Wechselrichter)" Value="1502" />
               </Union>
+              <!-- EX.1 API IP (für Virtual-Switch-Polling) (Byte 6-37) -->
+              <Union SizeInBit="256">
+                <Memory CodeSegment="%MID%" Offset="6" BitOffset="0" />
+                <Parameter Id="%AID%_UP-%TT%00003" Name="EX1ApiIp" ParameterType="%AID%_PT-EEXString32" Offset="0" BitOffset="0" Text="EX.1 API IP-Adresse" Value="" />
+              </Union>
+              <!-- Virtual-Switch Poll-Intervall (Byte 38-39) -->
+              <Union SizeInBit="16">
+                <Memory CodeSegment="%MID%" Offset="38" BitOffset="0" />
+                <Parameter Id="%AID%_UP-%TT%00004" Name="SwitchPollInterval" ParameterType="%AID%_PT-EEXTimeout" Offset="0" BitOffset="0" Text="Virtual-Switch Poll-Intervall (0 = aus)" SuffixText=" s" Value="5" />
+              </Union>
+              <!-- ===== EX.1 Messwerte (API -> KNX): Auswahl welche Werte gesendet werden (Byte 40) ===== -->
+              <Union SizeInBit="8">
+                <Memory CodeSegment="%MID%" Offset="40" BitOffset="0" />
+                <Parameter Id="%AID%_UP-%TT%00005" Name="MvPvEnable"   ParameterType="%AID%_PT-CheckBox" Offset="0" BitOffset="0" Text="PV-Leistung"       Value="0" />
+                <Parameter Id="%AID%_UP-%TT%00006" Name="MvConsEnable" ParameterType="%AID%_PT-CheckBox" Offset="0" BitOffset="1" Text="Verbrauch"         Value="0" />
+                <Parameter Id="%AID%_UP-%TT%00007" Name="MvBatEnable"  ParameterType="%AID%_PT-CheckBox" Offset="0" BitOffset="2" Text="Batterie-Leistung" Value="0" />
+                <Parameter Id="%AID%_UP-%TT%00008" Name="MvSocEnable"  ParameterType="%AID%_PT-CheckBox" Offset="0" BitOffset="3" Text="Batterie-SoC"      Value="0" />
+              </Union>
+              <!-- PV-Leistung (pW): Sende-Einstellungen (Byte 41-47) -->
+              <Union SizeInBit="8">
+                <Memory CodeSegment="%MID%" Offset="41" BitOffset="0" />
+                <Parameter Id="%AID%_UP-%TT%00009" Name="MvPvChangeMode" ParameterType="%AID%_PT-EEXChangeMode" Offset="0" BitOffset="0" Text="Änderung angegeben" Value="0" />
+              </Union>
+              <Union SizeInBit="32">
+                <Memory CodeSegment="%MID%" Offset="42" BitOffset="0" />
+                <Parameter Id="%AID%_UP-%TT%00010" Name="MvPvThreshold" ParameterType="%AID%_PT-ValueDpt14" Offset="0" BitOffset="0" Text="Senden bei Änderung um" SuffixText=" W / %" Value="10" />
+              </Union>
+              <Union SizeInBit="16">
+                <Memory CodeSegment="%MID%" Offset="46" BitOffset="0" />
+                <Parameter Id="%AID%_UP-%TT%00011" Name="MvPvDelayBase" ParameterType="%AID%_PT-DelayBase" Offset="0" BitOffset="0" Text="Zeitbasis" Value="0" />
+                <Parameter Id="%AID%_UP-%TT%00012" Name="MvPvDelayTime" ParameterType="%AID%_PT-DelayTime" Offset="0" BitOffset="2" Text="zyklisch senden alle (0 = aus)" Value="0" />
+              </Union>
+              <!-- Verbrauch (cW): Sende-Einstellungen (Byte 48-54) -->
+              <Union SizeInBit="8">
+                <Memory CodeSegment="%MID%" Offset="48" BitOffset="0" />
+                <Parameter Id="%AID%_UP-%TT%00013" Name="MvConsChangeMode" ParameterType="%AID%_PT-EEXChangeMode" Offset="0" BitOffset="0" Text="Änderung angegeben" Value="0" />
+              </Union>
+              <Union SizeInBit="32">
+                <Memory CodeSegment="%MID%" Offset="49" BitOffset="0" />
+                <Parameter Id="%AID%_UP-%TT%00014" Name="MvConsThreshold" ParameterType="%AID%_PT-ValueDpt14" Offset="0" BitOffset="0" Text="Senden bei Änderung um" SuffixText=" W / %" Value="10" />
+              </Union>
+              <Union SizeInBit="16">
+                <Memory CodeSegment="%MID%" Offset="53" BitOffset="0" />
+                <Parameter Id="%AID%_UP-%TT%00015" Name="MvConsDelayBase" ParameterType="%AID%_PT-DelayBase" Offset="0" BitOffset="0" Text="Zeitbasis" Value="0" />
+                <Parameter Id="%AID%_UP-%TT%00016" Name="MvConsDelayTime" ParameterType="%AID%_PT-DelayTime" Offset="0" BitOffset="2" Text="zyklisch senden alle (0 = aus)" Value="0" />
+              </Union>
+              <!-- Batterie-Leistung (bdW-bcW): Sende-Einstellungen (Byte 55-61) -->
+              <Union SizeInBit="8">
+                <Memory CodeSegment="%MID%" Offset="55" BitOffset="0" />
+                <Parameter Id="%AID%_UP-%TT%00017" Name="MvBatChangeMode" ParameterType="%AID%_PT-EEXChangeMode" Offset="0" BitOffset="0" Text="Änderung angegeben" Value="0" />
+              </Union>
+              <Union SizeInBit="32">
+                <Memory CodeSegment="%MID%" Offset="56" BitOffset="0" />
+                <Parameter Id="%AID%_UP-%TT%00018" Name="MvBatThreshold" ParameterType="%AID%_PT-ValueDpt14" Offset="0" BitOffset="0" Text="Senden bei Änderung um" SuffixText=" W / %" Value="10" />
+              </Union>
+              <Union SizeInBit="16">
+                <Memory CodeSegment="%MID%" Offset="60" BitOffset="0" />
+                <Parameter Id="%AID%_UP-%TT%00019" Name="MvBatDelayBase" ParameterType="%AID%_PT-DelayBase" Offset="0" BitOffset="0" Text="Zeitbasis" Value="0" />
+                <Parameter Id="%AID%_UP-%TT%00020" Name="MvBatDelayTime" ParameterType="%AID%_PT-DelayTime" Offset="0" BitOffset="2" Text="zyklisch senden alle (0 = aus)" Value="0" />
+              </Union>
+              <!-- Batterie-SoC (soc): Sende-Einstellungen (Byte 62-65) -->
+              <Union SizeInBit="8">
+                <Memory CodeSegment="%MID%" Offset="62" BitOffset="0" />
+                <Parameter Id="%AID%_UP-%TT%00021" Name="MvSocChangeMode" ParameterType="%AID%_PT-EEXChangeMode" Offset="0" BitOffset="0" Text="Änderung angegeben" Value="0" />
+              </Union>
+              <Union SizeInBit="8">
+                <Memory CodeSegment="%MID%" Offset="63" BitOffset="0" />
+                <Parameter Id="%AID%_UP-%TT%00022" Name="MvSocThreshold" ParameterType="%AID%_PT-ValueDpt5001" Offset="0" BitOffset="0" Text="Senden bei Änderung um" SuffixText=" %" Value="1" />
+              </Union>
+              <Union SizeInBit="16">
+                <Memory CodeSegment="%MID%" Offset="64" BitOffset="0" />
+                <Parameter Id="%AID%_UP-%TT%00023" Name="MvSocDelayBase" ParameterType="%AID%_PT-DelayBase" Offset="0" BitOffset="0" Text="Zeitbasis" Value="0" />
+                <Parameter Id="%AID%_UP-%TT%00024" Name="MvSocDelayTime" ParameterType="%AID%_PT-DelayTime" Offset="0" BitOffset="2" Text="zyklisch senden alle (0 = aus)" Value="0" />
+              </Union>
             </Parameters>
             <ParameterRefs>
               <ParameterRef Id="%AID%_UP-%TT%00000_R-%TT%0000001" RefId="%AID%_UP-%TT%00000" />
               <ParameterRef Id="%AID%_UP-%TT%00001_R-%TT%0000101" RefId="%AID%_UP-%TT%00001" />
               <ParameterRef Id="%AID%_UP-%TT%00002_R-%TT%0000201" RefId="%AID%_UP-%TT%00002" />
+              <ParameterRef Id="%AID%_UP-%TT%00003_R-%TT%0000301" RefId="%AID%_UP-%TT%00003" />
+              <ParameterRef Id="%AID%_UP-%TT%00004_R-%TT%0000401" RefId="%AID%_UP-%TT%00004" />
+              <ParameterRef Id="%AID%_UP-%TT%00005_R-%TT%0000501" RefId="%AID%_UP-%TT%00005" />
+              <ParameterRef Id="%AID%_UP-%TT%00006_R-%TT%0000601" RefId="%AID%_UP-%TT%00006" />
+              <ParameterRef Id="%AID%_UP-%TT%00007_R-%TT%0000701" RefId="%AID%_UP-%TT%00007" />
+              <ParameterRef Id="%AID%_UP-%TT%00008_R-%TT%0000801" RefId="%AID%_UP-%TT%00008" />
+              <ParameterRef Id="%AID%_UP-%TT%00009_R-%TT%0000901" RefId="%AID%_UP-%TT%00009" />
+              <ParameterRef Id="%AID%_UP-%TT%00010_R-%TT%0001001" RefId="%AID%_UP-%TT%00010" />
+              <ParameterRef Id="%AID%_UP-%TT%00011_R-%TT%0001101" RefId="%AID%_UP-%TT%00011" />
+              <ParameterRef Id="%AID%_UP-%TT%00012_R-%TT%0001201" RefId="%AID%_UP-%TT%00012" />
+              <ParameterRef Id="%AID%_UP-%TT%00013_R-%TT%0001301" RefId="%AID%_UP-%TT%00013" />
+              <ParameterRef Id="%AID%_UP-%TT%00014_R-%TT%0001401" RefId="%AID%_UP-%TT%00014" />
+              <ParameterRef Id="%AID%_UP-%TT%00015_R-%TT%0001501" RefId="%AID%_UP-%TT%00015" />
+              <ParameterRef Id="%AID%_UP-%TT%00016_R-%TT%0001601" RefId="%AID%_UP-%TT%00016" />
+              <ParameterRef Id="%AID%_UP-%TT%00017_R-%TT%0001701" RefId="%AID%_UP-%TT%00017" />
+              <ParameterRef Id="%AID%_UP-%TT%00018_R-%TT%0001801" RefId="%AID%_UP-%TT%00018" />
+              <ParameterRef Id="%AID%_UP-%TT%00019_R-%TT%0001901" RefId="%AID%_UP-%TT%00019" />
+              <ParameterRef Id="%AID%_UP-%TT%00020_R-%TT%0002001" RefId="%AID%_UP-%TT%00020" />
+              <ParameterRef Id="%AID%_UP-%TT%00021_R-%TT%0002101" RefId="%AID%_UP-%TT%00021" />
+              <ParameterRef Id="%AID%_UP-%TT%00022_R-%TT%0002201" RefId="%AID%_UP-%TT%00022" />
+              <ParameterRef Id="%AID%_UP-%TT%00023_R-%TT%0002301" RefId="%AID%_UP-%TT%00023" />
+              <ParameterRef Id="%AID%_UP-%TT%00024_R-%TT%0002401" RefId="%AID%_UP-%TT%00024" />
             </ParameterRefs>
-            <ComObjectTable />
-            <ComObjectRefs />
+            <ComObjectTable>
+              <!-- Globales Status-KO 0: EX.1 liest aktiv (Modbus, DPT 1.011) -->
+              <ComObject Id="%AID%_O-%TT%00000" Number="0" Name="ModbusActive" Text="" FunctionText="" ObjectSize="1 Bit" DatapointType="DPST-1-11" ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" />
+              <!-- Globales Status-KO 1: EX.1-API erreichbar (Virtual-Switch-Poll, DPT 1.011) -->
+              <ComObject Id="%AID%_O-%TT%00001" Number="1" Name="ApiReachable" Text="" FunctionText="" ObjectSize="1 Bit" DatapointType="DPST-1-11" ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" />
+              <!-- EX.1 Messwerte (API -> KNX): globale System-Werte -->
+              <ComObject Id="%AID%_O-%TT%00002" Number="2" Name="PvPower"      Text="" FunctionText="" ObjectSize="4 Bytes" DatapointType="DPST-14-56" ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" />
+              <ComObject Id="%AID%_O-%TT%00003" Number="3" Name="Consumption"  Text="" FunctionText="" ObjectSize="4 Bytes" DatapointType="DPST-14-56" ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" />
+              <ComObject Id="%AID%_O-%TT%00004" Number="4" Name="BatteryPower" Text="" FunctionText="" ObjectSize="4 Bytes" DatapointType="DPST-14-56" ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" />
+              <ComObject Id="%AID%_O-%TT%00005" Number="5" Name="BatterySoc"   Text="" FunctionText="" ObjectSize="1 Byte"  DatapointType="DPST-5-1"   ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" />
+            </ComObjectTable>
+            <ComObjectRefs>
+              <ComObjectRef Id="%AID%_O-%TT%00000_R-%TT%0000001" RefId="%AID%_O-%TT%00000" Text="Modbus-Server aktiv" FunctionText="Status" />
+              <ComObjectRef Id="%AID%_O-%TT%00001_R-%TT%0000101" RefId="%AID%_O-%TT%00001" Text="EX.1-API erreichbar" FunctionText="Status" />
+              <ComObjectRef Id="%AID%_O-%TT%00002_R-%TT%0000201" RefId="%AID%_O-%TT%00002" Text="PV-Leistung"       FunctionText="EX.1 Messwert" />
+              <ComObjectRef Id="%AID%_O-%TT%00003_R-%TT%0000301" RefId="%AID%_O-%TT%00003" Text="Verbrauch"         FunctionText="EX.1 Messwert" />
+              <ComObjectRef Id="%AID%_O-%TT%00004_R-%TT%0000401" RefId="%AID%_O-%TT%00004" Text="Batterie-Leistung" FunctionText="EX.1 Messwert" />
+              <ComObjectRef Id="%AID%_O-%TT%00005_R-%TT%0000501" RefId="%AID%_O-%TT%00005" Text="Batterie-SoC"      FunctionText="EX.1 Messwert" />
+            </ComObjectRefs>
           </Static>
           <Dynamic>
-            <Channel Name="MainChannel%TT%" Text="Energy Edge" Number="%PREFIX%" Id="%AID%_CH-%TT%" Icon="meter-electric-outline">
-              <ParameterBlock Id="%AID%_PB-nnn" Name="EEXSettings" Text="Allgemein" Icon="cog-outline">
-                <ParameterSeparator Id="%AID%_PS-nnn" Text="Energy Edge (Modbus-TCP-Server)" UIHint="Headline" />
+            <Channel Name="MainChannel%TT%" Text="Energy Edge Bridge" Number="%PREFIX%" Id="%AID%_CH-%TT%" Icon="meter-electric-outline">
+              <ParameterBlock Id="%AID%_PB-nnn" Name="EEXSettings" Text="Allgemein" Icon="cog-outline" HelpContext="EEX-Allgemein">
+                <ParameterSeparator Id="%AID%_PS-nnn" Text="Energy Edge Bridge" UIHint="Headline" />
                 <ParameterSeparator Id="%AID%_PS-nnn" Text="Version: %ModuleVersion%" />
                 <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
                 <ParameterSeparator Id="%AID%_PS-nnn" Text="Modbus-Server" UIHint="Headline" />
-                <ParameterRefRef IndentLevel="1" RefId="%AID%_UP-%TT%00001_R-%TT%0000101" />
-                <ParameterRefRef IndentLevel="1" RefId="%AID%_UP-%TT%00002_R-%TT%0000201" />
+                <ParameterRefRef IndentLevel="1" RefId="%AID%_UP-%TT%00001_R-%TT%0000101" HelpContext="EEX-Modbus-Server-Ports" />
+                <ParameterRefRef IndentLevel="1" RefId="%AID%_UP-%TT%00002_R-%TT%0000201" HelpContext="EEX-Modbus-Server-Ports" />
+                <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
+                <ParameterSeparator Id="%AID%_PS-nnn" Text="Virtual Switch (Schalten, EX.1 → KNX)" UIHint="Headline" />
+                <ParameterRefRef IndentLevel="1" RefId="%AID%_UP-%TT%00003_R-%TT%0000301" HelpContext="EEX-EX1-API" />
+                <ParameterRefRef IndentLevel="1" RefId="%AID%_UP-%TT%00004_R-%TT%0000401" HelpContext="EEX-EX1-API" />
                 <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
                 <ParameterSeparator Id="%AID%_PS-nnn" Text="Kanalauswahl" UIHint="Headline" />
-                <ParameterRefRef IndentLevel="1" RefId="%AID%_UP-%TT%00000_R-%TT%0000001" />
+                <ParameterRefRef IndentLevel="1" RefId="%AID%_UP-%TT%00000_R-%TT%0000001" HelpContext="EEX-Kanalauswahl" />
                 <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
+                <ParameterSeparator Id="%AID%_PS-nnn" Text="Messwerte-Auswahl (EX.1 → KNX)" UIHint="Headline" />
+                <ParameterRefRef IndentLevel="1" RefId="%AID%_UP-%TT%00005_R-%TT%0000501" HelpContext="EEX-Messwerte-Auswahl" />
+                <ParameterRefRef IndentLevel="1" RefId="%AID%_UP-%TT%00006_R-%TT%0000601" HelpContext="EEX-Messwerte-Auswahl" />
+                <ParameterRefRef IndentLevel="1" RefId="%AID%_UP-%TT%00007_R-%TT%0000701" HelpContext="EEX-Messwerte-Auswahl" />
+                <ParameterRefRef IndentLevel="1" RefId="%AID%_UP-%TT%00008_R-%TT%0000801" HelpContext="EEX-Messwerte-Auswahl" />
+                <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
+                <ParameterSeparator Id="%AID%_PS-nnn" Text="Status" UIHint="Headline" />
+                <ComObjectRefRef RefId="%AID%_O-%TT%00000_R-%TT%0000001" />
+                <ComObjectRefRef RefId="%AID%_O-%TT%00001_R-%TT%0000101" />
+              </ParameterBlock>
+              <ParameterBlock Id="%AID%_PB-nnn" Name="EEXMeasurements" Text="EX.1 Messwerte" Icon="gauge" HelpContext="EEX-EX1-Messwerte">
+                <ParameterSeparator Id="%AID%_PS-nnn" Text="EX.1 Messwerte (API → KNX)" UIHint="Headline" />
+                <ParameterSeparator Id="%AID%_PS-nnn" Text="Auswahl der gesendeten Werte auf der Seite Allgemein." />
+                <choose ParamRefId="%AID%_UP-%TT%00005_R-%TT%0000501">
+                  <when test="=1">
+                    <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
+                    <ParameterSeparator Id="%AID%_PS-nnn" Text="PV-Leistung (pW)" UIHint="Headline" />
+                    <ParameterRefRef IndentLevel="1" RefId="%AID%_UP-%TT%00009_R-%TT%0000901" />
+                    <ParameterRefRef IndentLevel="1" RefId="%AID%_UP-%TT%00010_R-%TT%0001001" />
+                    <ParameterRefRef IndentLevel="1" RefId="%AID%_UP-%TT%00012_R-%TT%0001201" />
+                    <ParameterRefRef IndentLevel="1" RefId="%AID%_UP-%TT%00011_R-%TT%0001101" />
+                    <ComObjectRefRef RefId="%AID%_O-%TT%00002_R-%TT%0000201" />
+                  </when>
+                </choose>
+                <choose ParamRefId="%AID%_UP-%TT%00006_R-%TT%0000601">
+                  <when test="=1">
+                    <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
+                    <ParameterSeparator Id="%AID%_PS-nnn" Text="Verbrauch (cW)" UIHint="Headline" />
+                    <ParameterRefRef IndentLevel="1" RefId="%AID%_UP-%TT%00013_R-%TT%0001301" />
+                    <ParameterRefRef IndentLevel="1" RefId="%AID%_UP-%TT%00014_R-%TT%0001401" />
+                    <ParameterRefRef IndentLevel="1" RefId="%AID%_UP-%TT%00016_R-%TT%0001601" />
+                    <ParameterRefRef IndentLevel="1" RefId="%AID%_UP-%TT%00015_R-%TT%0001501" />
+                    <ComObjectRefRef RefId="%AID%_O-%TT%00003_R-%TT%0000301" />
+                  </when>
+                </choose>
+                <choose ParamRefId="%AID%_UP-%TT%00007_R-%TT%0000701">
+                  <when test="=1">
+                    <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
+                    <ParameterSeparator Id="%AID%_PS-nnn" Text="Batterie-Leistung (Entladen positiv)" UIHint="Headline" />
+                    <ParameterRefRef IndentLevel="1" RefId="%AID%_UP-%TT%00017_R-%TT%0001701" />
+                    <ParameterRefRef IndentLevel="1" RefId="%AID%_UP-%TT%00018_R-%TT%0001801" />
+                    <ParameterRefRef IndentLevel="1" RefId="%AID%_UP-%TT%00020_R-%TT%0002001" />
+                    <ParameterRefRef IndentLevel="1" RefId="%AID%_UP-%TT%00019_R-%TT%0001901" />
+                    <ComObjectRefRef RefId="%AID%_O-%TT%00004_R-%TT%0000401" />
+                  </when>
+                </choose>
+                <choose ParamRefId="%AID%_UP-%TT%00008_R-%TT%0000801">
+                  <when test="=1">
+                    <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
+                    <ParameterSeparator Id="%AID%_PS-nnn" Text="Batterie-SoC (soc)" UIHint="Headline" />
+                    <ParameterRefRef IndentLevel="1" RefId="%AID%_UP-%TT%00021_R-%TT%0002101" />
+                    <ParameterRefRef IndentLevel="1" RefId="%AID%_UP-%TT%00022_R-%TT%0002201" />
+                    <ParameterRefRef IndentLevel="1" RefId="%AID%_UP-%TT%00024_R-%TT%0002401" />
+                    <ParameterRefRef IndentLevel="1" RefId="%AID%_UP-%TT%00023_R-%TT%0002301" />
+                    <ComObjectRefRef RefId="%AID%_O-%TT%00005_R-%TT%0000501" />
+                  </when>
+                </choose>
               </ParameterBlock>
               <op:include href="EnergyEdgeModule.templ.xml" xpath="//Dynamic/ChannelIndependentBlock/*" type="template" prefix="EEX" IsInner="true" />
               <choose ParamRefId="%AID%_UP-%TT%00000_R-%TT%0000001">
@@ -97,6 +276,11 @@
           </Dynamic>
         </ApplicationProgram>
       </ApplicationPrograms>
+      <Baggages>
+        <Baggage TargetPath="" Name="Help_de.zip" Id="%FILE-HELP-de%">
+          <FileInfo TimeInfo="%DATETIME%" />
+        </Baggage>
+      </Baggages>
     </Manufacturer>
   </ManufacturerData>
 </KNX>
