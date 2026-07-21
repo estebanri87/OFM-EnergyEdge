@@ -83,6 +83,8 @@
                 <Parameter Id="%AID%_UP-%TT%00006" Name="MvConsEnable" ParameterType="%AID%_PT-CheckBox" Offset="0" BitOffset="1" Text="Verbrauch"         Value="0" />
                 <Parameter Id="%AID%_UP-%TT%00007" Name="MvBatEnable"  ParameterType="%AID%_PT-CheckBox" Offset="0" BitOffset="2" Text="Batterie-Leistung" Value="0" />
                 <Parameter Id="%AID%_UP-%TT%00008" Name="MvSocEnable"  ParameterType="%AID%_PT-CheckBox" Offset="0" BitOffset="3" Text="Batterie-SoC"      Value="0" />
+                <Parameter Id="%AID%_UP-%TT%00025" Name="ShowModbusActive" ParameterType="%AID%_PT-CheckBox" Offset="0" BitOffset="4" Text="Status 'Modbus-Server aktiv' verwenden" Value="1" />
+                <Parameter Id="%AID%_UP-%TT%00026" Name="ShowApiReachable" ParameterType="%AID%_PT-CheckBox" Offset="0" BitOffset="5" Text="Status 'EX.1-API erreichbar' verwenden" Value="1" />
               </Union>
               <!-- PV-Leistung (pW): Sende-Einstellungen (Byte 41-47) -->
               <Union SizeInBit="8">
@@ -167,6 +169,8 @@
               <ParameterRef Id="%AID%_UP-%TT%00022_R-%TT%0002201" RefId="%AID%_UP-%TT%00022" />
               <ParameterRef Id="%AID%_UP-%TT%00023_R-%TT%0002301" RefId="%AID%_UP-%TT%00023" />
               <ParameterRef Id="%AID%_UP-%TT%00024_R-%TT%0002401" RefId="%AID%_UP-%TT%00024" />
+              <ParameterRef Id="%AID%_UP-%TT%00025_R-%TT%0002501" RefId="%AID%_UP-%TT%00025" />
+              <ParameterRef Id="%AID%_UP-%TT%00026_R-%TT%0002601" RefId="%AID%_UP-%TT%00026" />
             </ParameterRefs>
             <ComObjectTable>
               <!-- Globales Status-KO 0: EX.1 liest aktiv (Modbus, DPT 1.011) -->
@@ -212,8 +216,18 @@
                 <ParameterRefRef IndentLevel="1" RefId="%AID%_UP-%TT%00008_R-%TT%0000801" HelpContext="EEX-Messwerte-Auswahl" />
                 <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
                 <ParameterSeparator Id="%AID%_PS-nnn" Text="Status" UIHint="Headline" />
-                <ComObjectRefRef RefId="%AID%_O-%TT%00000_R-%TT%0000001" />
-                <ComObjectRefRef RefId="%AID%_O-%TT%00001_R-%TT%0000101" />
+                <ParameterRefRef IndentLevel="1" RefId="%AID%_UP-%TT%00025_R-%TT%0002501" HelpContext="EEX-Statusobjekte" />
+                <choose ParamRefId="%AID%_UP-%TT%00025_R-%TT%0002501">
+                  <when test="=1">
+                    <ComObjectRefRef RefId="%AID%_O-%TT%00000_R-%TT%0000001" />
+                  </when>
+                </choose>
+                <ParameterRefRef IndentLevel="1" RefId="%AID%_UP-%TT%00026_R-%TT%0002601" HelpContext="EEX-Statusobjekte" />
+                <choose ParamRefId="%AID%_UP-%TT%00026_R-%TT%0002601">
+                  <when test="=1">
+                    <ComObjectRefRef RefId="%AID%_O-%TT%00001_R-%TT%0000101" />
+                  </when>
+                </choose>
               </ParameterBlock>
               <ParameterBlock Id="%AID%_PB-nnn" Name="EEXMeasurements" Text="EX.1 Messwerte" Icon="gauge" HelpContext="EEX-EX1-Messwerte">
                 <ParameterSeparator Id="%AID%_PS-nnn" Text="EX.1 Messwerte (API → KNX)" UIHint="Headline" />

@@ -2,6 +2,9 @@
 
 - **Modbus-Server aktiv** (DPT 1.011): der EX.1 liest aktiv per Modbus.
 - **EX.1-API erreichbar** (DPT 1.011): der `/v2/point`-Poll ist erfolgreich.
+
+Beide Status-KOs lassen sich auf der Seite „Allgemein" per Checkbox ein-/ausblenden, falls
+sie nicht benötigt werden.
 - **PV-Leistung / Verbrauch / Batterie-Leistung** (DPT 14.056, W) und
   **Batterie-SoC** (DPT 5.001, %): die EX.1-Messwerte.
 

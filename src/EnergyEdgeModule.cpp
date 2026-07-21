@@ -119,14 +119,15 @@ void EnergyEdgeModule::updateStatusKos()
             anyRecent = true;
     }
 
-    // Global: "EX.1 liest aktiv" (Modbus).
-    if (!_statusSent || anyRecent != _lastModbusActive)
+    // Global: "EX.1 liest aktiv" (Modbus). Nur senden, wenn das KO verwendet wird.
+    if ((bool)ParamEEX_ShowModbusActive && (!_statusSent || anyRecent != _lastModbusActive))
     {
         _lastModbusActive = anyRecent;
         KoEEX_ModbusActive.value(anyRecent, DPT_Switch);
     }
     // Global: "EX.1-API erreichbar" (nur relevant, wenn Schalter-Kanäle den EX.1 pollen).
-    if (!_switches.empty() && (!_statusSent || _apiReachable != _lastApiReachable))
+    if ((bool)ParamEEX_ShowApiReachable && !_switches.empty() &&
+        (!_statusSent || _apiReachable != _lastApiReachable))
     {
         _lastApiReachable = _apiReachable;
         KoEEX_ApiReachable.value(_apiReachable, DPT_Switch);
