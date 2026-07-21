@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?xml-model href="../../Organization/knxprod-support/knx_project_14/knx-editor.xsd" type="application/xml" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<KNX xmlns:op="http://github.com/OpenKNX/OpenKNXproducer" xmlns="http://knx.org/xml/project/14" CreatedBy="KNX MT" ToolVersion="5.1.255.16695">
+  <ManufacturerData>
+    <Manufacturer>
+      <ApplicationPrograms>
+        <ApplicationProgram>
+          <Static>
+            <Parameters>
+              <!-- Kanal-Bezeichnung -->
+              <Parameter Id="%AID%_P-%TT%%CC%000" Name="Channel%C%Name" ParameterType="%AID%_PT-Text40Byte" Text="Bezeichnung" Value="" />
+
+              <!-- Kategorie (Byte 0) -->
+              <Union SizeInBit="8">
+                <Memory CodeSegment="%MID%" Offset="0" BitOffset="0" />
+                <Parameter Id="%AID%_UP-%TT%%CC%001" Name="CH%C%Category" ParameterType="%AID%_PT-EEXCategory" Offset="0" BitOffset="0" Text="Kategorie" Value="0" />
+              </Union>
+
+              <!-- Modbus-Profil (Verbraucher) (Byte 1) -->
+              <Union SizeInBit="8">
+                <Memory CodeSegment="%MID%" Offset="1" BitOffset="0" />
+                <Parameter Id="%AID%_UP-%TT%%CC%002" Name="CH%C%ConsumerProfile" ParameterType="%AID%_PT-EEXConsumerProfile" Offset="0" BitOffset="0" Text="Modbus-Profil" Value="0" />
+              </Union>
+
+              <!-- Modbus Unit-ID (Byte 2) -->
+              <Union SizeInBit="8">
+                <Memory CodeSegment="%MID%" Offset="2" BitOffset="0" />
+                <Parameter Id="%AID%_UP-%TT%%CC%003" Name="CH%C%UnitId" ParameterType="%AID%_PT-EEXUnitId" Offset="0" BitOffset="0" Text="Modbus Unit-ID" Value="1" />
+              </Union>
+
+              <!-- Vorzeichen invertieren (Byte 3) -->
+              <Union SizeInBit="8">
+                <Memory CodeSegment="%MID%" Offset="3" BitOffset="0" />
+                <Parameter Id="%AID%_UP-%TT%%CC%004" Name="CH%C%Invert" ParameterType="%AID%_PT-EEXYesNo" Offset="0" BitOffset="0" Text="Vorzeichen invertieren" Value="0" />
+              </Union>
+
+              <!-- Watchdog-Timeout in Sekunden (Byte 4-5) -->
+              <Union SizeInBit="16">
+                <Memory CodeSegment="%MID%" Offset="4" BitOffset="0" />
+                <Parameter Id="%AID%_UP-%TT%%CC%005" Name="CH%C%Timeout" ParameterType="%AID%_PT-EEXTimeout" Offset="0" BitOffset="0" Text="Timeout (0 = aus)" SuffixText=" s" Value="0" />
+              </Union>
+
+              <!-- Skalierungsfaktor in Promille (1000 = 1.0) (Byte 6-7) -->
+              <Union SizeInBit="16">
+                <Memory CodeSegment="%MID%" Offset="6" BitOffset="0" />
+                <Parameter Id="%AID%_UP-%TT%%CC%006" Name="CH%C%Scale" ParameterType="%AID%_PT-EEXScale" Offset="0" BitOffset="0" Text="Skalierung (Promille, 1000 = 1,0)" Value="1000" />
+              </Union>
+
+              <!-- SolarEdge Modell (Byte 8-39, 32 Zeichen) -->
+              <Union SizeInBit="256">
+                <Memory CodeSegment="%MID%" Offset="8" BitOffset="0" />
+                <Parameter Id="%AID%_UP-%TT%%CC%007" Name="CH%C%Model" ParameterType="%AID%_PT-EEXString32" Offset="0" BitOffset="0" Text="SunSpec Modell" Value="SE3000H-RW000BNN4" />
+              </Union>
+
+              <!-- SolarEdge Seriennummer (Byte 40-71, 32 Zeichen) -->
+              <Union SizeInBit="256">
+                <Memory CodeSegment="%MID%" Offset="40" BitOffset="0" />
+                <Parameter Id="%AID%_UP-%TT%%CC%008" Name="CH%C%Serial" ParameterType="%AID%_PT-EEXString32" Offset="0" BitOffset="0" Text="SunSpec Seriennummer" Value="7E123456" />
+              </Union>
+            </Parameters>
+
+            <ParameterRefs>
+              <ParameterRef Id="%AID%_P-%TT%%CC%000_R-%TT%%CC%00001"  RefId="%AID%_P-%TT%%CC%000" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%001_R-%TT%%CC%00101" RefId="%AID%_UP-%TT%%CC%001" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%002_R-%TT%%CC%00201" RefId="%AID%_UP-%TT%%CC%002" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%003_R-%TT%%CC%00301" RefId="%AID%_UP-%TT%%CC%003" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%004_R-%TT%%CC%00401" RefId="%AID%_UP-%TT%%CC%004" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%005_R-%TT%%CC%00501" RefId="%AID%_UP-%TT%%CC%005" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%006_R-%TT%%CC%00601" RefId="%AID%_UP-%TT%%CC%006" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%007_R-%TT%%CC%00701" RefId="%AID%_UP-%TT%%CC%007" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%008_R-%TT%%CC%00801" RefId="%AID%_UP-%TT%%CC%008" />
+            </ParameterRefs>
+
+            <ComObjectTable>
+              <!-- KO 0: Wirkleistung (Eingang vom KNX-Bus, DPT 14.056 W) -->
+              <ComObject Id="%AID%_O-%TT%%CC%000" Number="%K0%" Name="CH%C%Wirkleistung" Text="" FunctionText="" ObjectSize="4 Bytes" DatapointType="DPST-14-56" ReadFlag="Disabled" WriteFlag="Enabled" CommunicationFlag="Enabled" TransmitFlag="Disabled" UpdateFlag="Enabled" ReadOnInitFlag="Enabled" />
+            </ComObjectTable>
+
+            <ComObjectRefs>
+              <ComObjectRef Id="%AID%_O-%TT%%CC%000_R-%TT%%CC%00001" RefId="%AID%_O-%TT%%CC%000" Text="{{0:Zähler %C%}}: Wirkleistung" FunctionText="Zähler %C%: Eingang, Wirkleistung (W)" TextParameterRefId="%AID%_P-%TT%%CC%000_R-%TT%%CC%00001" />
+            </ComObjectRefs>
+          </Static>
+
+          <Dynamic>
+            <ChannelIndependentBlock>
+              <!-- Kanalanzahl steuert Sichtbarkeit -->
+              <choose ParamRefId="%AID%_UP-%TT%00000_R-%TT%0000001">
+                <when test="&gt;=%C%">
+                  <ParameterBlock Id="%AID%_PB-nnn" Name="f%CC%EEX" Text="Zähler %C%: {{0: ...}}" TextParameterRefId="%AID%_P-%TT%%CC%000_R-%TT%%CC%00001" Icon="meter-electric-outline" ShowInComObjectTree="true">
+
+                    <ParameterSeparator Id="%AID%_PS-nnn" Text="Zähler %C%" UIHint="Headline" />
+                    <ParameterRefRef RefId="%AID%_P-%TT%%CC%000_R-%TT%%CC%00001" />
+                    <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
+
+                    <!-- Kategorie / Profil -->
+                    <ParameterSeparator Id="%AID%_PS-nnn" Text="Gerät" UIHint="Headline" />
+                    <ParameterRefRef RefId="%AID%_UP-%TT%%CC%001_R-%TT%%CC%00101" />
+                    <!-- Modbus-Profil nur bei Verbraucher-Kategorien (nicht Wechselrichter) -->
+                    <choose ParamRefId="%AID%_UP-%TT%%CC%001_R-%TT%%CC%00101">
+                      <when test="!=4">
+                        <ParameterRefRef RefId="%AID%_UP-%TT%%CC%002_R-%TT%%CC%00201" />
+                      </when>
+                      <when test="=4">
+                        <ParameterSeparator Id="%AID%_PS-nnn" Text="Profil: SolarEdge (SunSpec) – emuliert einen einphasigen Wechselrichter." UIHint="Information" />
+                      </when>
+                    </choose>
+
+                    <!-- Modbus -->
+                    <ParameterSeparator Id="%AID%_PS-nnn" Text="Modbus" UIHint="Headline" />
+                    <ParameterRefRef RefId="%AID%_UP-%TT%%CC%003_R-%TT%%CC%00301" />
+                    <!-- SDM630 nutzt fest Unit-ID 1 -->
+                    <choose ParamRefId="%AID%_UP-%TT%%CC%002_R-%TT%%CC%00201">
+                      <when test="=1">
+                        <ParameterSeparator Id="%AID%_PS-nnn" Text="SDM630 nutzt im EX.1 fest Unit-ID 1 (nur ein Gerät pro IP)." UIHint="Information" />
+                      </when>
+                    </choose>
+
+                    <!-- SunSpec-Identität nur bei Wechselrichter -->
+                    <choose ParamRefId="%AID%_UP-%TT%%CC%001_R-%TT%%CC%00101">
+                      <when test="=4">
+                        <ParameterSeparator Id="%AID%_PS-nnn" Text="SunSpec-Identität" UIHint="Headline" />
+                        <ParameterRefRef RefId="%AID%_UP-%TT%%CC%007_R-%TT%%CC%00701" />
+                        <ParameterRefRef RefId="%AID%_UP-%TT%%CC%008_R-%TT%%CC%00801" />
+                      </when>
+                    </choose>
+
+                    <!-- Verhalten -->
+                    <ParameterSeparator Id="%AID%_PS-nnn" Text="Verhalten" UIHint="Headline" />
+                    <ParameterRefRef RefId="%AID%_UP-%TT%%CC%005_R-%TT%%CC%00501" />
+                    <ParameterRefRef RefId="%AID%_UP-%TT%%CC%004_R-%TT%%CC%00401" />
+                    <ParameterRefRef RefId="%AID%_UP-%TT%%CC%006_R-%TT%%CC%00601" />
+
+                    <!-- KO -->
+                    <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
+                    <ComObjectRefRef RefId="%AID%_O-%TT%%CC%000_R-%TT%%CC%00001" />
+
+                  </ParameterBlock>
+                </when>
+              </choose>
+            </ChannelIndependentBlock>
+          </Dynamic>
+
+        </ApplicationProgram>
+      </ApplicationPrograms>
+    </Manufacturer>
+  </ManufacturerData>
+</KNX>
