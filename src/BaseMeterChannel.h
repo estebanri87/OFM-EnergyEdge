@@ -37,6 +37,11 @@ class BaseMeterChannel : public OpenKNX::Channel, public ModbusSource
     volatile float _watt = 0.0f;
     volatile uint32_t _lastUpdateMs = 0;
 
+    // Smart-Meter-Energie (kWh, DPT 13.013). Kein Watchdog: ein Zaehlerstand darf nicht
+    // auf 0 fallen, nur weil gerade kein Telegramm kam.
+    volatile float _importKwh = 0.0f;
+    volatile float _exportKwh = 0.0f;
+
     // Modbus request tracking (status KOs). Written by the AsyncTCP worker
     // (onModbusRequest), read/consumed by the module loop.
     volatile uint32_t _lastRequestMs = 0;
@@ -79,6 +84,11 @@ class BaseMeterChannel : public OpenKNX::Channel, public ModbusSource
 
     // Current power in W after watchdog + invert + scale.
     float currentWatt();
+
+    // Smart-Meter-Energie in kWh (1:1 durchgereicht, kein Watchdog).
+    float importKwh() const { return _importKwh; }
+    float exportKwh() const { return _exportKwh; }
+    bool isSmartMeter() const { return _category == EEX_CAT_SMARTMETER; }
 
     // --- Modbus request tracking (status KOs) + Registermitschnitt ---
     void onModbusRequest(uint16_t addr, uint16_t words) override

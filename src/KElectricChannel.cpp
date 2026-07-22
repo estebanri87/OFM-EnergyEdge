@@ -1,7 +1,11 @@
 #include "KElectricChannel.h"
 #include <string.h>
 
-#define KELECTRIC_POWER_REG 4151
+#define KELECTRIC_POWER_REG  4151
+// Energieregister, am Gerät per eexprobe ermittelt: der EX.1 liest die Bloecke
+// 4131..4150 und 4173..4192 und summiert je Wert Slot 0 und Slot 8 (Zweitarifzaehler).
+#define KELECTRIC_IMPORT_REG 4131 // zweiter Summand liegt auf 4147, bleibt 0
+#define KELECTRIC_EXPORT_REG 4173 // zweiter Summand liegt auf 4189, bleibt 0
 
 bool KElectricChannel::s_energyProbe = false;
 
@@ -15,6 +19,21 @@ void KElectricChannel::buildRegisters(uint16_t reqAddr, uint16_t words, uint16_t
     eexFloatToRegsBE(kW, hi, lo);
     putReg(reqAddr, words, out, KELECTRIC_POWER_REG, hi);     // 4151 High-Word
     putReg(reqAddr, words, out, KELECTRIC_POWER_REG + 1, lo); // 4152 Low-Word
+
+    // Smart Meter: Bezug/Einspeisung in kWh. Der EX.1 summiert je Wert zwei Register
+    // (Bezug 4131+4147, Einspeisung 4173+4189 - per eexprobe am Gerät ermittelt). Wir
+    // legen den vollen Wert auf das jeweils erste; das zweite bleibt durch das memset 0,
+    // die Summe ergibt also exakt den KNX-Wert.
+    if (!s_energyProbe && isSmartMeter())
+    {
+        eexFloatToRegsBE(importKwh(), hi, lo);
+        putReg(reqAddr, words, out, KELECTRIC_IMPORT_REG, hi);
+        putReg(reqAddr, words, out, KELECTRIC_IMPORT_REG + 1, lo);
+
+        eexFloatToRegsBE(exportKwh(), hi, lo);
+        putReg(reqAddr, words, out, KELECTRIC_EXPORT_REG, hi);
+        putReg(reqAddr, words, out, KELECTRIC_EXPORT_REG + 1, lo);
+    }
 
     if (s_energyProbe)
     {

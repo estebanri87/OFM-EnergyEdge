@@ -92,6 +92,11 @@
               <ComObject Id="%AID%_O-%TT%%CC%001" Number="%K1%" Name="CH%C%Schaltausgang" Text="" FunctionText="" ObjectSize="1 Bit" DatapointType="DPST-1-1" ReadFlag="Disabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" />
               <!-- KO 2: Letzte Modbus-Abfrage dieses Kanals (Ausgang, DPT 19.001) - Zähler-Kategorien -->
               <ComObject Id="%AID%_O-%TT%%CC%002" Number="%K2%" Name="CH%C%LetzteAbfrage" Text="" FunctionText="" ObjectSize="8 Bytes" DatapointType="DPST-19-1" ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" />
+              <!-- KO 3/4: Energie Bezug/Einspeisung (Eingang vom KNX-Bus, DPT 13.013 kWh) - nur Smart Meter.
+                   Der EX.1 summiert je Wert zwei Register: Bezug 4131+4147, Einspeisung 4173+4189
+                   (am Gerät per eexprobe ermittelt). Wir schreiben den Wert auf das jeweils erste. -->
+              <ComObject Id="%AID%_O-%TT%%CC%003" Number="%K3%" Name="CH%C%Bezug"       Text="" FunctionText="" ObjectSize="4 Bytes" DatapointType="DPST-13-13" ReadFlag="Disabled" WriteFlag="Enabled" CommunicationFlag="Enabled" TransmitFlag="Disabled" UpdateFlag="Enabled" ReadOnInitFlag="Enabled" />
+              <ComObject Id="%AID%_O-%TT%%CC%004" Number="%K4%" Name="CH%C%Einspeisung" Text="" FunctionText="" ObjectSize="4 Bytes" DatapointType="DPST-13-13" ReadFlag="Disabled" WriteFlag="Enabled" CommunicationFlag="Enabled" TransmitFlag="Disabled" UpdateFlag="Enabled" ReadOnInitFlag="Enabled" />
             </ComObjectTable>
 
             <ComObjectRefs>
@@ -105,6 +110,9 @@
               <ComObjectRef Id="%AID%_O-%TT%%CC%002_R-%TT%%CC%00201" RefId="%AID%_O-%TT%%CC%002" Text="{{0:Energiemessung %C%}}: Letzte Abfrage" FunctionText="Energiemessung %C%: Ausgang, Letzte Modbus-Abfrage" TextParameterRefId="%AID%_P-%TT%%CC%000_R-%TT%%CC%00001" />
               <ComObjectRef Id="%AID%_O-%TT%%CC%002_R-%TT%%CC%00202" RefId="%AID%_O-%TT%%CC%002" Text="{{0:Smart Meter %C%}}: Letzte Abfrage"    FunctionText="Smart Meter %C%: Ausgang, Letzte Modbus-Abfrage"    TextParameterRefId="%AID%_P-%TT%%CC%000_R-%TT%%CC%00001" />
               <ComObjectRef Id="%AID%_O-%TT%%CC%002_R-%TT%%CC%00203" RefId="%AID%_O-%TT%%CC%002" Text="{{0:Wechselrichter %C%}}: Letzte Abfrage" FunctionText="Wechselrichter %C%: Ausgang, Letzte Modbus-Abfrage" TextParameterRefId="%AID%_P-%TT%%CC%000_R-%TT%%CC%00001" />
+              <!-- Energie-Refs (nur Smart Meter) -->
+              <ComObjectRef Id="%AID%_O-%TT%%CC%003_R-%TT%%CC%00301" RefId="%AID%_O-%TT%%CC%003" Text="{{0:Smart Meter %C%}}: Bezug"       FunctionText="Smart Meter %C%: Eingang, Bezug (kWh)"       TextParameterRefId="%AID%_P-%TT%%CC%000_R-%TT%%CC%00001" />
+              <ComObjectRef Id="%AID%_O-%TT%%CC%004_R-%TT%%CC%00401" RefId="%AID%_O-%TT%%CC%004" Text="{{0:Smart Meter %C%}}: Einspeisung" FunctionText="Smart Meter %C%: Eingang, Einspeisung (kWh)" TextParameterRefId="%AID%_P-%TT%%CC%000_R-%TT%%CC%00001" />
             </ComObjectRefs>
           </Static>
 
@@ -182,7 +190,11 @@
                     <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
                     <choose ParamRefId="%AID%_UP-%TT%%CC%001_R-%TT%%CC%00101">
                       <when test="=0"><ComObjectRefRef RefId="%AID%_O-%TT%%CC%000_R-%TT%%CC%00001" /></when>
-                      <when test="=1"><ComObjectRefRef RefId="%AID%_O-%TT%%CC%000_R-%TT%%CC%00002" /></when>
+                      <when test="=1">
+                        <ComObjectRefRef RefId="%AID%_O-%TT%%CC%000_R-%TT%%CC%00002" />
+                        <ComObjectRefRef RefId="%AID%_O-%TT%%CC%003_R-%TT%%CC%00301" />
+                        <ComObjectRefRef RefId="%AID%_O-%TT%%CC%004_R-%TT%%CC%00401" />
+                      </when>
                       <when test="=2"><ComObjectRefRef RefId="%AID%_O-%TT%%CC%001_R-%TT%%CC%00101" /></when>
                       <when test="=3"><ComObjectRefRef RefId="%AID%_O-%TT%%CC%000_R-%TT%%CC%00003" /></when>
                     </choose>

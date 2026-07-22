@@ -9,6 +9,8 @@ Batterie) auf den KNX-Bus.
 
 Die vollständige Historie liegt in [CHANGELOG.md](CHANGELOG.md).
 
+- 0.5.0 Smart Meter: Bezug und Einspeisung (DPT 13.013) an den EX.1
+- 0.4.0 Status-KOs ausblendbar, Binärgewichte im Energieregister-Probe, Fix für Kanäle jenseits von „Aktive Kanäle"
 - 0.3.0 EX.1-Messwerte (PV/Verbrauch/Batterie/SoC → KNX), Sentinel-Diagnose für Smart-Meter-Energieregister
 - 0.2.0 Virtual Switch (EX.1 → KNX), Status-KOs, Kategorie „Smart Meter"
 - 0.1.0 Initial Release: Modbus-TCP-Server (KElectric / SDM630 / SolarEdge SunSpec)
@@ -28,7 +30,8 @@ Zweistufiges Kanalmodell: **Kategorie** (primär) + **Modbus-Profil** (technisch
 ### Kategorien
 
 - **Energiemessung** — Wirkleistung (W) eines KNX-Verbrauchers an den EX.1.
-- **Smart Meter** — zusätzlich Bezug/Einspeisung (in Vorbereitung, DPT 13.013 kWh).
+- **Smart Meter** — zusätzlich Bezug und Einspeisung (DPT 13.013, kWh). Der EX.1 liest die
+  Energie in kWh, also ohne Umrechnung — anders als die Leistung, die er in kW erwartet.
 - **Schalter / Virtual Switch** — der EX.1 schaltet (PV-Überschuss-Logik im EX.1); der Zustand
   wird über die Solar-Manager-API (`GET /v2/point`) gepollt und auf einen KNX-Aktorkanal
   (DPT 1.001) gespiegelt.
@@ -85,12 +88,12 @@ In das Anwendungs-XML muss das OFM-EnergyEdgeModule aufgenommen werden:
     NumChannels="20"
     KoSingleOffset="703"
     KoOffset="709">
-    <op:verify File="../lib/OFM-EnergyEdgeModule/library.json" ModuleVersion="0.3" />
+    <op:verify File="../lib/OFM-EnergyEdgeModule/library.json" ModuleVersion="0.5" />
   </op:define>
 ```
 
 **Hinweis:** `ModuleType`, `KoSingleOffset`, `KoOffset` und `NumChannels` müssen je nach
-Anwendung angepasst werden. Das Modul belegt 6 globale (Single-)KOs und 3 KOs je Kanal.
+Anwendung angepasst werden. Das Modul belegt 6 globale (Single-)KOs und 5 KOs je Kanal.
 
 In `main.cpp` muss das Modul ebenfalls hinzugefügt werden:
 

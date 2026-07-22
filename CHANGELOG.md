@@ -1,5 +1,42 @@
 # Changelog OFM-EnergyEdgeModule
 
+## 0.5.0 - 2026-07-22
+
+### Added
+- Kategorie **Smart Meter**: zwei KNX-Eingangs-KOs **Bezug** und **Einspeisung** (DPT 13.013,
+  kWh) werden dem EX.1 als Energiezählerstände bereitgestellt. Die Werte gehen ohne Umrechnung
+  durch — der EX.1 liest die Energieregister in kWh, anders als die Leistung in kW.
+
+### Changed
+- KO-Blockgröße je Kanal von 3 auf 5 erhöht. **Verschiebt alle Kanal-KO-Nummern,
+  ETS-Re-Import und erneuter Download erforderlich.**
+
+### Notes
+- Die Zielregister wurden am realen Gerät per `eexprobe` ermittelt: Der EX.1 liest die Blöcke
+  4131..4150 und 4173..4192 und **summiert je Wert zwei Register** (Slot 0 und Slot 8, also
+  Bezug 4131+4147, Einspeisung 4173+4189 — typisch für einen Zweitarifzähler). Das Modul legt
+  den vollen Wert auf das jeweils erste Register; das zweite bleibt 0, die Summe stimmt damit.
+- Energie hat bewusst **keinen Watchdog**: Ein Zählerstand darf nicht auf 0 fallen, nur weil
+  gerade kein Telegramm kam.
+
+## 0.4.0 - 2026-07-22
+
+### Added
+- Die globalen Status-KOs „Modbus-Server aktiv" und „EX.1-API erreichbar" lassen sich per
+  ETS-Checkbox einzeln ein-/ausblenden; ausgeblendete Objekte werden auch nicht gesendet.
+
+### Changed
+- `eexprobe` verwendet Binärgewichte (Slot n = 0,01 · 2^n MWh) statt der Registeradresse als
+  Markerwert. Der EX.1 summiert je Energiewert zwei Register — mit Adressen als Marker war die
+  Summe symmetrisch und damit mehrdeutig, mit Binärgewichten ist sie eindeutig dekodierbar.
+
+### Fixed
+- Kanäle jenseits von „Aktive Kanäle" wurden zur Laufzeit trotzdem angelegt und
+  registrierten Modbus-Worker auf der ungültigen Unit-ID 0. `createChannel()` liefert für
+  diese Kanäle jetzt `nullptr`, sie belegen weder Speicher noch Modbus-Worker.
+  **Hinweis:** „Aktive Kanäle" muss die tatsächlich genutzte Kanalzahl abdecken, sonst
+  fallen zuvor per Restspeicher noch laufende Kanäle aus.
+
 ## 0.3.0 - 2026-07-21
 
 ### Added
@@ -14,12 +51,6 @@
 ### Changed
 - KO-Layout: 6 globale Single-KOs (Modbus-Server aktiv, EX.1-API erreichbar, 4 Messwerte);
   `KoOffset` von 705 auf 709 verschoben. **ETS-Re-Import erforderlich.**
-- Globale Status-KOs lassen sich per ETS-Checkbox ein-/ausblenden.
-
-### Fixed
-- Kanäle jenseits von „Aktive Kanäle" wurden zur Laufzeit trotzdem angelegt und
-  registrierten Modbus-Worker auf der ungültigen Unit-ID 0. `createChannel()` liefert für
-  diese Kanäle jetzt `nullptr`, sie belegen weder Speicher noch Modbus-Worker.
 
 ## 0.2.0 - 2026-07-21
 

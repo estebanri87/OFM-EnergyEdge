@@ -57,6 +57,12 @@ void BaseMeterChannel::processInputKo(GroupObject& ko)
         _watt = (float)ko.value(Dpt(14, 56));
         _lastUpdateMs = millis();
     }
+    // Energie nur bei Smart Meter. kWh gehen ohne Umrechnung durch: der EX.1 liest die
+    // Energieregister in kWh (am Gerät verifiziert), anders als die Leistung in kW.
+    else if (index == EEX_KoCHBezug)
+        _importKwh = (float)((int32_t)ko.value(Dpt(13, 13)));
+    else if (index == EEX_KoCHEinspeisung)
+        _exportKwh = (float)((int32_t)ko.value(Dpt(13, 13)));
 }
 
 float BaseMeterChannel::currentWatt()
