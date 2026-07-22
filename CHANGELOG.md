@@ -18,6 +18,10 @@
   den vollen Wert auf das jeweils erste Register; das zweite bleibt 0, die Summe stimmt damit.
 - Energie hat bewusst **keinen Watchdog**: Ein Zählerstand darf nicht auf 0 fallen, nur weil
   gerade kein Telegramm kam.
+- **Am Gerät verifiziert (2026-07-22):** Mit dem realen Zählerstand der Wärmepumpe
+  (13.967 kWh) zeigt der EX.1 den Bezug korrekt als 14 MWh an; die Einspeisung bleibt 0 und
+  wird vom EX.1 dann ausgeblendet. Die per `eexprobe` ermittelte Registerzuordnung stimmt
+  damit auch im praktischen Betrieb.
 
 ## 0.4.0 - 2026-07-22
 
