@@ -31,6 +31,12 @@ const std::string EnergyEdgeModule::version()
 
 OpenKNX::Channel* EnergyEdgeModule::createChannel(uint8_t _channelIndex /* used in macros, do not rename */)
 {
+    // Nur konfigurierte Kanäle anlegen. Kanäle jenseits von "Aktive Kanäle" sind in der ETS
+    // nicht sichtbar und haben deshalb keine gültige Konfiguration (Unit-ID 0). Sie dürfen
+    // keinen Modbus-Worker registrieren - Unit-ID 0 ist in Modbus Broadcast/ungültig.
+    if (_channelIndex >= ParamEEX_EEXVisibleChannels)
+        return nullptr;
+
     // Kategorie bestimmt Kanalklasse/Richtung.
     if (ParamEEX_CHCategory == EEX_CAT_SWITCH)
         return new VirtualSwitchChannel(_channelIndex); // Schalter/Virtual Switch: EX.1 -> KNX

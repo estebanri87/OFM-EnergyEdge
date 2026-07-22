@@ -14,6 +14,12 @@
 ### Changed
 - KO-Layout: 6 globale Single-KOs (Modbus-Server aktiv, EX.1-API erreichbar, 4 Messwerte);
   `KoOffset` von 705 auf 709 verschoben. **ETS-Re-Import erforderlich.**
+- Globale Status-KOs lassen sich per ETS-Checkbox ein-/ausblenden.
+
+### Fixed
+- Kanäle jenseits von „Aktive Kanäle" wurden zur Laufzeit trotzdem angelegt und
+  registrierten Modbus-Worker auf der ungültigen Unit-ID 0. `createChannel()` liefert für
+  diese Kanäle jetzt `nullptr`, sie belegen weder Speicher noch Modbus-Worker.
 
 ## 0.2.0 - 2026-07-21
 
