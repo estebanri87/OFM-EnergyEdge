@@ -18,18 +18,23 @@ void KElectricChannel::buildRegisters(uint16_t reqAddr, uint16_t words, uint16_t
 
     if (s_energyProbe)
     {
-        // Sentinel: jedes Energie-Float-Slot der beiden vom EX.1 gelesenen Blöcke
-        // (4131..4150, 4173..4192) = seine Registeradresse als Float. Der EX.1-Wert
-        // fuer Bezug/Einspeisung zeigt dann direkt das zugehörige Register.
-        for (uint16_t reg = 4131; reg <= 4149; reg += 2)
+        // Sentinel mit Binaergewichten: Slot n der beiden vom EX.1 gelesenen Energie-
+        // bloecke (4131..4150, 4173..4192) bekommt 10 * 2^n kWh, wird im EX.1 also als
+        // 0,01 * 2^n MWh angezeigt. Der angezeigte MWh-Wert * 100 ist damit die Binaer-
+        // summe der tatsaechlich genutzten Slots und eindeutig dekodierbar - auch wenn
+        // der EX.1 mehrere Register addiert (Adressen als Marker waeren symmetrisch und
+        // damit mehrdeutig). Maximalwert 10,23 MWh haelt die EX.1-Statistik sauber.
+        uint8_t slot = 0;
+        for (uint16_t reg = 4131; reg <= 4149; reg += 2, slot++)
         {
-            eexFloatToRegsBE((float)reg, hi, lo);
+            eexFloatToRegsBE(10.0f * (float)(1UL << slot), hi, lo);
             putReg(reqAddr, words, out, reg, hi);
             putReg(reqAddr, words, out, reg + 1, lo);
         }
-        for (uint16_t reg = 4173; reg <= 4191; reg += 2)
+        slot = 0;
+        for (uint16_t reg = 4173; reg <= 4191; reg += 2, slot++)
         {
-            eexFloatToRegsBE((float)reg, hi, lo);
+            eexFloatToRegsBE(10.0f * (float)(1UL << slot), hi, lo);
             putReg(reqAddr, words, out, reg, hi);
             putReg(reqAddr, words, out, reg + 1, lo);
         }

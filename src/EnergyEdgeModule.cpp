@@ -147,8 +147,11 @@ bool EnergyEdgeModule::processCommand(const std::string cmd, bool diagnoseKo)
     {
         bool on = !KElectricChannel::energyProbe();
         KElectricChannel::setEnergyProbe(on);
-        logInfoP("EnergyEdge: Energieregister-Sentinel %s. EX.1 zeigt jetzt je Energiewert "
-                 "seine Registeradresse (z.B. 4137 -> Register 4137).", on ? "AN" : "AUS");
+        logInfoP("EnergyEdge: Energieregister-Sentinel %s. Angezeigte MWh im EX.1 mal 100 "
+                 "nehmen und binaer lesen: 1=4131/4173, 2=4133/4175, 4=4135/4177, "
+                 "8=4137/4179, 16=4139/4181, 32=4141/4183, 64=4143/4185, 128=4145/4187, "
+                 "256=4147/4189, 512=4149/4191 (Bezug=Block 4131, Einspeisung=Block 4173).",
+                 on ? "AN" : "AUS");
         return true;
     }
     if (cmd != "eex")
