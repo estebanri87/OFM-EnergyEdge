@@ -52,6 +52,16 @@
                   <Enumeration Text="in % (relativ)" Value="1" Id="%AID%_PT-EEXChangeMode_EN-1" />
                 </TypeRestriction>
               </ParameterType>
+              <ParameterType Id="%AID%_PT-EEXApiProtocol" Name="EEXApiProtocol">
+                <TypeRestriction Base="Value" SizeInBit="8">
+                  <Enumeration Text="HTTP (unverschlüsselt)" Value="0" Id="%AID%_PT-EEXApiProtocol_EN-0" />
+                  <Enumeration Text="HTTPS (verschlüsselt)"  Value="1" Id="%AID%_PT-EEXApiProtocol_EN-1" />
+                </TypeRestriction>
+              </ParameterType>
+              <!-- 40 Zeichen: der EX.1-API-Key ist eine 36-stellige UUID -->
+              <ParameterType Id="%AID%_PT-EEXString40" Name="EEXString40">
+                <TypeText SizeInBit="320" />
+              </ParameterType>
             </ParameterTypes>
             <Parameters>
               <Union SizeInBit="8">
@@ -75,6 +85,16 @@
               <Union SizeInBit="16">
                 <Memory CodeSegment="%MID%" Offset="38" BitOffset="0" />
                 <Parameter Id="%AID%_UP-%TT%00004" Name="SwitchPollInterval" ParameterType="%AID%_PT-EEXTimeout" Offset="0" BitOffset="0" Text="Virtual-Switch Poll-Intervall (0 = aus)" SuffixText=" s" Value="5" />
+              </Union>
+              <!-- EX.1-API: Protokoll (Byte 66) -->
+              <Union SizeInBit="8">
+                <Memory CodeSegment="%MID%" Offset="66" BitOffset="0" />
+                <Parameter Id="%AID%_UP-%TT%00027" Name="EX1ApiProtocol" ParameterType="%AID%_PT-EEXApiProtocol" Offset="0" BitOffset="0" Text="Protokoll" Value="1" />
+              </Union>
+              <!-- EX.1-API: API-Key, nur bei HTTPS (Byte 67-106) -->
+              <Union SizeInBit="320">
+                <Memory CodeSegment="%MID%" Offset="67" BitOffset="0" />
+                <Parameter Id="%AID%_UP-%TT%00028" Name="EX1ApiKey" ParameterType="%AID%_PT-EEXString40" Offset="0" BitOffset="0" Text="API-Key (leer = ohne Authentifizierung)" Value="" />
               </Union>
               <!-- ===== EX.1 Messwerte (API -> KNX): Auswahl welche Werte gesendet werden (Byte 40) ===== -->
               <Union SizeInBit="8">
@@ -171,6 +191,8 @@
               <ParameterRef Id="%AID%_UP-%TT%00024_R-%TT%0002401" RefId="%AID%_UP-%TT%00024" />
               <ParameterRef Id="%AID%_UP-%TT%00025_R-%TT%0002501" RefId="%AID%_UP-%TT%00025" />
               <ParameterRef Id="%AID%_UP-%TT%00026_R-%TT%0002601" RefId="%AID%_UP-%TT%00026" />
+              <ParameterRef Id="%AID%_UP-%TT%00027_R-%TT%0002701" RefId="%AID%_UP-%TT%00027" />
+              <ParameterRef Id="%AID%_UP-%TT%00028_R-%TT%0002801" RefId="%AID%_UP-%TT%00028" />
             </ParameterRefs>
             <ComObjectTable>
               <!-- Globales Status-KO 0: EX.1 liest aktiv (Modbus, DPT 1.011) -->
@@ -204,6 +226,12 @@
                 <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
                 <ParameterSeparator Id="%AID%_PS-nnn" Text="Virtual Switch (Schalten, EX.1 → KNX)" UIHint="Headline" />
                 <ParameterRefRef IndentLevel="1" RefId="%AID%_UP-%TT%00003_R-%TT%0000301" HelpContext="EEX-EX1-API" />
+                <ParameterRefRef IndentLevel="1" RefId="%AID%_UP-%TT%00027_R-%TT%0002701" HelpContext="EEX-EX1-API" />
+                <choose ParamRefId="%AID%_UP-%TT%00027_R-%TT%0002701">
+                  <when test="=1">
+                    <ParameterRefRef IndentLevel="2" RefId="%AID%_UP-%TT%00028_R-%TT%0002801" HelpContext="EEX-EX1-API" />
+                  </when>
+                </choose>
                 <ParameterRefRef IndentLevel="1" RefId="%AID%_UP-%TT%00004_R-%TT%0000401" HelpContext="EEX-EX1-API" />
                 <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
                 <ParameterSeparator Id="%AID%_PS-nnn" Text="Kanalauswahl" UIHint="Headline" />

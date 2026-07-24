@@ -244,18 +244,33 @@ void EnergyEdgeModule::pollEx1Api()
     if (!ip || !ip[0])
         return;
 
-    std::string url = "http://";
+    // Protokoll per ETS: HTTPS ist der Normalfall (der EX.1 schließt Port 80, sobald die
+    // verschlüsselte API aktiv ist). Das Gerätezertifikat ist ein AWS-IoT-Cert ohne bekannte
+    // CA-Kette - der ESP32-Webclient nutzt bei https:// per Default setInsecure().
+    bool useHttps = (ParamEEX_EX1ApiProtocol == 1);
+    std::string url = useHttps ? "https://" : "http://";
     url += ip;
     url += "/v2/point";
-    openknxNetwork.webclient.get(url)
-        .maxBodySize(4096)
-        .onDone([this](const OpenKNX::Network::Webclient::Response& res) {
-            _apiReachable = res.success();
-            if (res.success())
-                processPointResponse(res.body());
-            else
-                logDebugP("EnergyEdge: /v2/point-Poll fehlgeschlagen (status %d)", res.status());
-        })
+
+    auto req = openknxNetwork.webclient.get(url);
+    req.maxBodySize(4096);
+
+    // Ist im Installateur-Portal ein API-Key hinterlegt, verlangt der EX.1 ihn im Header
+    // "x-api-key" (Bearer/Authorization werden mit 401 abgewiesen). Leerer Key = ohne Auth.
+    if (useHttps)
+    {
+        const char* apiKey = (const char*)ParamEEX_EX1ApiKey;
+        if (apiKey && apiKey[0])
+            req.header("x-api-key", apiKey);
+    }
+
+    req.onDone([this](const OpenKNX::Network::Webclient::Response& res) {
+           _apiReachable = res.success();
+           if (res.success())
+               processPointResponse(res.body());
+           else
+               logDebugP("EnergyEdge: /v2/point-Poll fehlgeschlagen (status %d)", res.status());
+       })
         .send();
 }
 
