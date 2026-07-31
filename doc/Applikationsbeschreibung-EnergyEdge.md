@@ -160,6 +160,24 @@ Entladen positiv, beim Laden negativ.
 
 <!-- DOCEND -->
 
+<!-- DOC -->
+## Gerätewerte
+
+Der EX.1 liefert in `/v2/point` unter `devices[]` je angeschlossenem Gerät zusätzliche
+Werte. Drei davon lassen sich auf KNX-Objekte legen:
+
+| Wert | API-Feld | DPT |
+| --- | --- | --- |
+| Geräteleistung | `power` | 14.056 (W) |
+| Gerätetemperatur | `temperature` | 9.001 (°C) |
+| Gerätestörung | `signal` | 1.005 (Alarm) |
+
+Jeder Wert hat ein eigenes ID-Feld (`_id`), das von Hand einzutragen ist, da die Werte
+typischerweise von unterschiedlichen Geräten stammen (z. B. Temperatur vom Speicher,
+Leistung vom Netzzähler). Bleibt das ID-Feld leer, wird der Wert nicht gesendet.
+
+<!-- DOCEND -->
+
 # Kommunikationsobjekte
 
 <!-- DOC -->
@@ -172,6 +190,8 @@ Beide Status-KOs lassen sich auf der Seite „Allgemein" per Checkbox ein-/ausbl
 sie nicht benötigt werden.
 - **PV-Leistung / Verbrauch / Batterie-Leistung** (DPT 14.056, W) und
   **Batterie-SoC** (DPT 5.001, %): die EX.1-Messwerte.
+- **Geräteleistung** (DPT 14.056, W), **Gerätetemperatur** (DPT 9.001, °C) und
+  **Gerätestörung** (DPT 1.005): die Gerätewerte aus `devices[]` (siehe oben).
 
 Kanal-Objekte: **Wirkleistung** (DPT 14.056, Eingang), **Schaltausgang** (DPT 1.001, Ausgang)
 und optional **Letzte Abfrage** (DPT 19.001).

@@ -35,6 +35,12 @@ class EnergyEdgeModule : public EEXChannelOwnerModule
         bool sent = false;
     };
     MvState _mvPv, _mvCons, _mvBat, _mvSoc;
+    // Netzleistung (abgeleitet), Energiezähler und Quoten.
+    MvState _mvGrid;
+    // Gerätewerte aus devices[] (Zuordnung über die je Wert konfigurierte _id).
+    MvState _mvDevPower, _mvDevTemp;
+    bool _devFault = false;
+    bool _devFaultSent = false;
     bool measurementsEnabled();
     void sendMeasurement(MvState& st, bool enabled, uint8_t changeMode, float threshold,
                          uint32_t cyclicMs, float value, GroupObject& ko, const Dpt& dpt);

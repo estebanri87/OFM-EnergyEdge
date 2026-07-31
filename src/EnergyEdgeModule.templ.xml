@@ -93,7 +93,7 @@
               <!-- KO 2: Letzte Modbus-Abfrage dieses Kanals (Ausgang, DPT 19.001) - Zähler-Kategorien -->
               <ComObject Id="%AID%_O-%TT%%CC%002" Number="%K2%" Name="CH%C%LetzteAbfrage" Text="" FunctionText="" ObjectSize="8 Bytes" DatapointType="DPST-19-1" ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" />
               <!-- KO 3/4: Energie Bezug/Einspeisung (Eingang vom KNX-Bus, DPT 13.013 kWh) - nur Smart Meter.
-                   Der EX.1 summiert je Wert zwei Register: Bezug 4131+4147, Einspeisung 4173+4189
+                   Der EX 1 summiert je Wert zwei Register: Bezug 4131+4147, Einspeisung 4173+4189
                    (am Gerät per eexprobe ermittelt). Wir schreiben den Wert auf das jeweils erste. -->
               <ComObject Id="%AID%_O-%TT%%CC%003" Number="%K3%" Name="CH%C%Bezug"       Text="" FunctionText="" ObjectSize="4 Bytes" DatapointType="DPST-13-13" ReadFlag="Disabled" WriteFlag="Enabled" CommunicationFlag="Enabled" TransmitFlag="Disabled" UpdateFlag="Enabled" ReadOnInitFlag="Enabled" />
               <ComObject Id="%AID%_O-%TT%%CC%004" Number="%K4%" Name="CH%C%Einspeisung" Text="" FunctionText="" ObjectSize="4 Bytes" DatapointType="DPST-13-13" ReadFlag="Disabled" WriteFlag="Enabled" CommunicationFlag="Enabled" TransmitFlag="Disabled" UpdateFlag="Enabled" ReadOnInitFlag="Enabled" />
@@ -137,7 +137,7 @@
                       </when>
                       <!-- Schalter/Virtual Switch: Hinweis + _id -->
                       <when test="=2">
-                        <ParameterSeparator Id="%AID%_PS-nnn" Text="Schalter/Virtual Switch: der Zustand wird über die lokale EX.1-API (Virtual Switch) gelesen und schaltet einen KNX-Aktorkanal. Die PV-Überschuss-Logik liegt im EX.1." UIHint="Information" />
+                        <ParameterSeparator Id="%AID%_PS-nnn" Text="Schalter/Virtual Switch: der Zustand wird über die lokale EX 1-API (Virtual Switch) gelesen und schaltet einen KNX-Aktorkanal. Die PV-Überschuss-Logik liegt im EX 1." UIHint="Information" />
                         <ParameterRefRef RefId="%AID%_UP-%TT%%CC%009_R-%TT%%CC%00901" HelpContext="EEX-Virtual-Switch-ID" />
                       </when>
                       <!-- Wechselrichter: SolarEdge -->
@@ -156,13 +156,13 @@
                     <!-- Hinweis Sub-Meter/ZEV nur bei Smart Meter -->
                     <choose ParamRefId="%AID%_UP-%TT%%CC%001_R-%TT%%CC%00101">
                       <when test="=1">
-                        <ParameterSeparator Id="%AID%_PS-nnn" Text="Als 'Sub-Meter' / ZEV im EX.1 einbinden: dort gibt es kein Geräte-ID-Feld, der EX.1 fragt immer Unit-ID 1 ab und unterscheidet nur über die IP (ein Sub-Meter pro IP). Für diesen Fall Unit-ID 1 setzen." UIHint="Information" />
+                        <ParameterSeparator Id="%AID%_PS-nnn" Text="Als 'Sub-Meter' / ZEV im EX 1 einbinden: dort gibt es kein Geräte-ID-Feld, der EX 1 fragt immer Unit-ID 1 ab und unterscheidet nur über die IP (ein Sub-Meter pro IP). Für diesen Fall Unit-ID 1 setzen." UIHint="Information" />
                       </when>
                     </choose>
                     <!-- SDM630 nutzt fest Unit-ID 1 -->
                     <choose ParamRefId="%AID%_UP-%TT%%CC%002_R-%TT%%CC%00201">
                       <when test="=1">
-                        <ParameterSeparator Id="%AID%_PS-nnn" Text="SDM630 nutzt im EX.1 fest Unit-ID 1 (nur ein Gerät pro IP)." UIHint="Information" />
+                        <ParameterSeparator Id="%AID%_PS-nnn" Text="SDM630 nutzt im EX 1 fest Unit-ID 1 (nur ein Gerät pro IP)." UIHint="Information" />
                       </when>
                     </choose>
 

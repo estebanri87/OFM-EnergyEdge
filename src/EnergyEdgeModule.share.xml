@@ -58,7 +58,7 @@
                   <Enumeration Text="HTTPS (verschlüsselt)"  Value="1" Id="%AID%_PT-EEXApiProtocol_EN-1" />
                 </TypeRestriction>
               </ParameterType>
-              <!-- 40 Zeichen: der EX.1-API-Key ist eine 36-stellige UUID -->
+              <!-- 40 Zeichen: der EX 1-API-Key ist eine 36-stellige UUID -->
               <ParameterType Id="%AID%_PT-EEXString40" Name="EEXString40">
                 <TypeText SizeInBit="320" />
               </ParameterType>
@@ -76,27 +76,27 @@
                 <Memory CodeSegment="%MID%" Offset="4" BitOffset="0" />
                 <Parameter Id="%AID%_UP-%TT%00002" Name="ProducerPort" ParameterType="%AID%_PT-EEXPort" Offset="0" BitOffset="0" Text="Modbus-Port Erzeuger (Wechselrichter)" Value="1502" />
               </Union>
-              <!-- EX.1 API IP (für Virtual-Switch-Polling) (Byte 6-37) -->
+              <!-- EX 1 API IP (für Virtual-Switch-Polling) (Byte 6-37) -->
               <Union SizeInBit="256">
                 <Memory CodeSegment="%MID%" Offset="6" BitOffset="0" />
-                <Parameter Id="%AID%_UP-%TT%00003" Name="EX1ApiIp" ParameterType="%AID%_PT-EEXString32" Offset="0" BitOffset="0" Text="EX.1 API IP-Adresse" Value="" />
+                <Parameter Id="%AID%_UP-%TT%00003" Name="EX1ApiIp" ParameterType="%AID%_PT-EEXString32" Offset="0" BitOffset="0" Text="EX 1 API IP-Adresse" Value="" />
               </Union>
               <!-- Virtual-Switch Poll-Intervall (Byte 38-39) -->
               <Union SizeInBit="16">
                 <Memory CodeSegment="%MID%" Offset="38" BitOffset="0" />
                 <Parameter Id="%AID%_UP-%TT%00004" Name="SwitchPollInterval" ParameterType="%AID%_PT-EEXTimeout" Offset="0" BitOffset="0" Text="Virtual-Switch Poll-Intervall (0 = aus)" SuffixText=" s" Value="5" />
               </Union>
-              <!-- EX.1-API: Protokoll (Byte 66) -->
+              <!-- EX 1-API: Protokoll (Byte 66) -->
               <Union SizeInBit="8">
                 <Memory CodeSegment="%MID%" Offset="66" BitOffset="0" />
                 <Parameter Id="%AID%_UP-%TT%00027" Name="EX1ApiProtocol" ParameterType="%AID%_PT-EEXApiProtocol" Offset="0" BitOffset="0" Text="Protokoll" Value="1" />
               </Union>
-              <!-- EX.1-API: API-Key, nur bei HTTPS (Byte 67-106) -->
+              <!-- EX 1-API: API-Key, nur bei HTTPS (Byte 67-106) -->
               <Union SizeInBit="320">
                 <Memory CodeSegment="%MID%" Offset="67" BitOffset="0" />
                 <Parameter Id="%AID%_UP-%TT%00028" Name="EX1ApiKey" ParameterType="%AID%_PT-EEXString40" Offset="0" BitOffset="0" Text="API-Key (leer = ohne Authentifizierung)" Value="" />
               </Union>
-              <!-- ===== EX.1 Messwerte (API -> KNX): Auswahl welche Werte gesendet werden (Byte 40) ===== -->
+              <!-- ===== EX 1 Messwerte (API -> KNX): Auswahl welche Werte gesendet werden (Byte 40) ===== -->
               <Union SizeInBit="8">
                 <Memory CodeSegment="%MID%" Offset="40" BitOffset="0" />
                 <Parameter Id="%AID%_UP-%TT%00005" Name="MvPvEnable"   ParameterType="%AID%_PT-CheckBox" Offset="0" BitOffset="0" Text="PV-Leistung"       Value="0" />
@@ -104,7 +104,7 @@
                 <Parameter Id="%AID%_UP-%TT%00007" Name="MvBatEnable"  ParameterType="%AID%_PT-CheckBox" Offset="0" BitOffset="2" Text="Batterie-Leistung" Value="0" />
                 <Parameter Id="%AID%_UP-%TT%00008" Name="MvSocEnable"  ParameterType="%AID%_PT-CheckBox" Offset="0" BitOffset="3" Text="Batterie-SoC"      Value="0" />
                 <Parameter Id="%AID%_UP-%TT%00025" Name="ShowModbusActive" ParameterType="%AID%_PT-CheckBox" Offset="0" BitOffset="4" Text="Status 'Modbus-Server aktiv' verwenden" Value="1" />
-                <Parameter Id="%AID%_UP-%TT%00026" Name="ShowApiReachable" ParameterType="%AID%_PT-CheckBox" Offset="0" BitOffset="5" Text="Status 'EX.1-API erreichbar' verwenden" Value="1" />
+                <Parameter Id="%AID%_UP-%TT%00026" Name="ShowApiReachable" ParameterType="%AID%_PT-CheckBox" Offset="0" BitOffset="5" Text="Status 'EX 1-API erreichbar' verwenden" Value="1" />
               </Union>
               <!-- PV-Leistung (pW): Sende-Einstellungen (Byte 41-47) -->
               <Union SizeInBit="8">
@@ -162,6 +162,83 @@
                 <Parameter Id="%AID%_UP-%TT%00023" Name="MvSocDelayBase" ParameterType="%AID%_PT-DelayBase" Offset="0" BitOffset="0" Text="Zeitbasis" Value="0" />
                 <Parameter Id="%AID%_UP-%TT%00024" Name="MvSocDelayTime" ParameterType="%AID%_PT-DelayTime" Offset="0" BitOffset="2" Text="zyklisch senden alle (0 = aus)" Value="0" />
               </Union>
+              <!-- ===== Weitere EX 1-Werte: Auswahl (Byte 107) ===== -->
+              <Union SizeInBit="8">
+                <Memory CodeSegment="%MID%" Offset="107" BitOffset="0" />
+                <Parameter Id="%AID%_UP-%TT%00029" Name="MvGridEnable"     ParameterType="%AID%_PT-CheckBox" Offset="0" BitOffset="0" Text="Netzleistung (Bezug +, Einspeisung -)" Value="0" />
+                <Parameter Id="%AID%_UP-%TT%00046" Name="MvDevPowerEnable" ParameterType="%AID%_PT-CheckBox" Offset="0" BitOffset="7" Text="Geräteleistung"     Value="0" />
+              </Union>
+              <!-- ===== Gerätewerte aus devices[]: Auswahl (Byte 124) ===== -->
+              <Union SizeInBit="8">
+                <Memory CodeSegment="%MID%" Offset="124" BitOffset="0" />
+                <Parameter Id="%AID%_UP-%TT%00047" Name="MvDevTempEnable"  ParameterType="%AID%_PT-CheckBox" Offset="0" BitOffset="0" Text="Gerätetemperatur"   Value="0" />
+                <Parameter Id="%AID%_UP-%TT%00048" Name="MvDevFaultEnable" ParameterType="%AID%_PT-CheckBox" Offset="0" BitOffset="1" Text="Gerätestörung"      Value="0" />
+              </Union>
+              <!-- Geräte-IDs (_id aus /v2/point), je Wert eigenes Gerät möglich (Byte 125-220) -->
+              <Union SizeInBit="256">
+                <Memory CodeSegment="%MID%" Offset="125" BitOffset="0" />
+                <Parameter Id="%AID%_UP-%TT%00049" Name="MvDevPowerId" ParameterType="%AID%_PT-EEXString32" Offset="0" BitOffset="0" Text="Geräte-ID (_id)" Value="" />
+              </Union>
+              <Union SizeInBit="256">
+                <Memory CodeSegment="%MID%" Offset="157" BitOffset="0" />
+                <Parameter Id="%AID%_UP-%TT%00050" Name="MvDevTempId" ParameterType="%AID%_PT-EEXString32" Offset="0" BitOffset="0" Text="Geräte-ID (_id)" Value="" />
+              </Union>
+              <Union SizeInBit="256">
+                <Memory CodeSegment="%MID%" Offset="189" BitOffset="0" />
+                <Parameter Id="%AID%_UP-%TT%00051" Name="MvDevFaultId" ParameterType="%AID%_PT-EEXString32" Offset="0" BitOffset="0" Text="Geräte-ID (_id)" Value="" />
+              </Union>
+              <!-- Geräteleistung: Sende-Einstellungen (Byte 221-227) -->
+              <Union SizeInBit="8">
+                <Memory CodeSegment="%MID%" Offset="221" BitOffset="0" />
+                <Parameter Id="%AID%_UP-%TT%00052" Name="MvDevPowerChangeMode" ParameterType="%AID%_PT-EEXChangeMode" Offset="0" BitOffset="0" Text="Änderung angegeben" Value="0" />
+              </Union>
+              <Union SizeInBit="32">
+                <Memory CodeSegment="%MID%" Offset="222" BitOffset="0" />
+                <Parameter Id="%AID%_UP-%TT%00053" Name="MvDevPowerThreshold" ParameterType="%AID%_PT-ValueDpt14" Offset="0" BitOffset="0" Text="Senden bei Änderung um" SuffixText=" W / %" Value="10" />
+              </Union>
+              <Union SizeInBit="16">
+                <Memory CodeSegment="%MID%" Offset="226" BitOffset="0" />
+                <Parameter Id="%AID%_UP-%TT%00054" Name="MvDevPowerDelayBase" ParameterType="%AID%_PT-DelayBase" Offset="0" BitOffset="0" Text="Zeitbasis" Value="0" />
+                <Parameter Id="%AID%_UP-%TT%00055" Name="MvDevPowerDelayTime" ParameterType="%AID%_PT-DelayTime" Offset="0" BitOffset="2" Text="zyklisch senden alle (0 = aus)" Value="0" />
+              </Union>
+              <!-- Gerätetemperatur: Sende-Einstellungen (Byte 228-233) -->
+              <Union SizeInBit="32">
+                <Memory CodeSegment="%MID%" Offset="228" BitOffset="0" />
+                <Parameter Id="%AID%_UP-%TT%00056" Name="MvDevTempThreshold" ParameterType="%AID%_PT-ValueDpt14" Offset="0" BitOffset="0" Text="Senden bei Änderung um" SuffixText=" K" Value="0.5" />
+              </Union>
+              <Union SizeInBit="16">
+                <Memory CodeSegment="%MID%" Offset="232" BitOffset="0" />
+                <Parameter Id="%AID%_UP-%TT%00057" Name="MvDevTempDelayBase" ParameterType="%AID%_PT-DelayBase" Offset="0" BitOffset="0" Text="Zeitbasis" Value="1" />
+                <Parameter Id="%AID%_UP-%TT%00058" Name="MvDevTempDelayTime" ParameterType="%AID%_PT-DelayTime" Offset="0" BitOffset="2" Text="zyklisch senden alle (0 = aus)" Value="15" />
+              </Union>
+              <!-- Bezeichnung der Gerätewerte: überschreibt den KO-Namen in der Gruppenadressliste,
+                   z. B. "Warmwassertemperatur" statt "Gerätetemperatur" (Byte 234-353). -->
+              <Union SizeInBit="320">
+                <Memory CodeSegment="%MID%" Offset="234" BitOffset="0" />
+                <Parameter Id="%AID%_UP-%TT%00059" Name="MvDevPowerLabel" ParameterType="%AID%_PT-Text40Byte" Offset="0" BitOffset="0" Text="Bezeichnung" Value="" />
+              </Union>
+              <Union SizeInBit="320">
+                <Memory CodeSegment="%MID%" Offset="274" BitOffset="0" />
+                <Parameter Id="%AID%_UP-%TT%00060" Name="MvDevTempLabel" ParameterType="%AID%_PT-Text40Byte" Offset="0" BitOffset="0" Text="Bezeichnung" Value="" />
+              </Union>
+              <Union SizeInBit="320">
+                <Memory CodeSegment="%MID%" Offset="314" BitOffset="0" />
+                <Parameter Id="%AID%_UP-%TT%00061" Name="MvDevFaultLabel" ParameterType="%AID%_PT-Text40Byte" Offset="0" BitOffset="0" Text="Bezeichnung" Value="" />
+              </Union>
+              <!-- Netzleistung: Sende-Einstellungen (Byte 108-114) -->
+              <Union SizeInBit="8">
+                <Memory CodeSegment="%MID%" Offset="108" BitOffset="0" />
+                <Parameter Id="%AID%_UP-%TT%00036" Name="MvGridChangeMode" ParameterType="%AID%_PT-EEXChangeMode" Offset="0" BitOffset="0" Text="Änderung angegeben" Value="0" />
+              </Union>
+              <Union SizeInBit="32">
+                <Memory CodeSegment="%MID%" Offset="109" BitOffset="0" />
+                <Parameter Id="%AID%_UP-%TT%00037" Name="MvGridThreshold" ParameterType="%AID%_PT-ValueDpt14" Offset="0" BitOffset="0" Text="Senden bei Änderung um" SuffixText=" W / %" Value="10" />
+              </Union>
+              <Union SizeInBit="16">
+                <Memory CodeSegment="%MID%" Offset="113" BitOffset="0" />
+                <Parameter Id="%AID%_UP-%TT%00038" Name="MvGridDelayBase" ParameterType="%AID%_PT-DelayBase" Offset="0" BitOffset="0" Text="Zeitbasis" Value="0" />
+                <Parameter Id="%AID%_UP-%TT%00039" Name="MvGridDelayTime" ParameterType="%AID%_PT-DelayTime" Offset="0" BitOffset="2" Text="zyklisch senden alle (0 = aus)" Value="0" />
+              </Union>
             </Parameters>
             <ParameterRefs>
               <ParameterRef Id="%AID%_UP-%TT%00000_R-%TT%0000001" RefId="%AID%_UP-%TT%00000" />
@@ -193,25 +270,56 @@
               <ParameterRef Id="%AID%_UP-%TT%00026_R-%TT%0002601" RefId="%AID%_UP-%TT%00026" />
               <ParameterRef Id="%AID%_UP-%TT%00027_R-%TT%0002701" RefId="%AID%_UP-%TT%00027" />
               <ParameterRef Id="%AID%_UP-%TT%00028_R-%TT%0002801" RefId="%AID%_UP-%TT%00028" />
+              <ParameterRef Id="%AID%_UP-%TT%00029_R-%TT%0002901" RefId="%AID%_UP-%TT%00029" />
+              <ParameterRef Id="%AID%_UP-%TT%00036_R-%TT%0003601" RefId="%AID%_UP-%TT%00036" />
+              <ParameterRef Id="%AID%_UP-%TT%00037_R-%TT%0003701" RefId="%AID%_UP-%TT%00037" />
+              <ParameterRef Id="%AID%_UP-%TT%00038_R-%TT%0003801" RefId="%AID%_UP-%TT%00038" />
+              <ParameterRef Id="%AID%_UP-%TT%00039_R-%TT%0003901" RefId="%AID%_UP-%TT%00039" />
+              <ParameterRef Id="%AID%_UP-%TT%00046_R-%TT%0004601" RefId="%AID%_UP-%TT%00046" />
+              <ParameterRef Id="%AID%_UP-%TT%00047_R-%TT%0004701" RefId="%AID%_UP-%TT%00047" />
+              <ParameterRef Id="%AID%_UP-%TT%00048_R-%TT%0004801" RefId="%AID%_UP-%TT%00048" />
+              <ParameterRef Id="%AID%_UP-%TT%00049_R-%TT%0004901" RefId="%AID%_UP-%TT%00049" />
+              <ParameterRef Id="%AID%_UP-%TT%00050_R-%TT%0005001" RefId="%AID%_UP-%TT%00050" />
+              <ParameterRef Id="%AID%_UP-%TT%00051_R-%TT%0005101" RefId="%AID%_UP-%TT%00051" />
+              <ParameterRef Id="%AID%_UP-%TT%00059_R-%TT%0005901" RefId="%AID%_UP-%TT%00059" />
+              <ParameterRef Id="%AID%_UP-%TT%00060_R-%TT%0006001" RefId="%AID%_UP-%TT%00060" />
+              <ParameterRef Id="%AID%_UP-%TT%00061_R-%TT%0006101" RefId="%AID%_UP-%TT%00061" />
+              <ParameterRef Id="%AID%_UP-%TT%00052_R-%TT%0005201" RefId="%AID%_UP-%TT%00052" />
+              <ParameterRef Id="%AID%_UP-%TT%00053_R-%TT%0005301" RefId="%AID%_UP-%TT%00053" />
+              <ParameterRef Id="%AID%_UP-%TT%00054_R-%TT%0005401" RefId="%AID%_UP-%TT%00054" />
+              <ParameterRef Id="%AID%_UP-%TT%00055_R-%TT%0005501" RefId="%AID%_UP-%TT%00055" />
+              <ParameterRef Id="%AID%_UP-%TT%00056_R-%TT%0005601" RefId="%AID%_UP-%TT%00056" />
+              <ParameterRef Id="%AID%_UP-%TT%00057_R-%TT%0005701" RefId="%AID%_UP-%TT%00057" />
+              <ParameterRef Id="%AID%_UP-%TT%00058_R-%TT%0005801" RefId="%AID%_UP-%TT%00058" />
             </ParameterRefs>
             <ComObjectTable>
-              <!-- Globales Status-KO 0: EX.1 liest aktiv (Modbus, DPT 1.011) -->
+              <!-- Globales Status-KO 0: EX 1 liest aktiv (Modbus, DPT 1.011) -->
               <ComObject Id="%AID%_O-%TT%00000" Number="0" Name="ModbusActive" Text="" FunctionText="" ObjectSize="1 Bit" DatapointType="DPST-1-11" ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" />
-              <!-- Globales Status-KO 1: EX.1-API erreichbar (Virtual-Switch-Poll, DPT 1.011) -->
+              <!-- Globales Status-KO 1: EX 1-API erreichbar (Virtual-Switch-Poll, DPT 1.011) -->
               <ComObject Id="%AID%_O-%TT%00001" Number="1" Name="ApiReachable" Text="" FunctionText="" ObjectSize="1 Bit" DatapointType="DPST-1-11" ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" />
-              <!-- EX.1 Messwerte (API -> KNX): globale System-Werte -->
+              <!-- EX 1 Messwerte (API -> KNX): globale System-Werte -->
               <ComObject Id="%AID%_O-%TT%00002" Number="2" Name="PvPower"      Text="" FunctionText="" ObjectSize="4 Bytes" DatapointType="DPST-14-56" ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" />
               <ComObject Id="%AID%_O-%TT%00003" Number="3" Name="Consumption"  Text="" FunctionText="" ObjectSize="4 Bytes" DatapointType="DPST-14-56" ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" />
               <ComObject Id="%AID%_O-%TT%00004" Number="4" Name="BatteryPower" Text="" FunctionText="" ObjectSize="4 Bytes" DatapointType="DPST-14-56" ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" />
               <ComObject Id="%AID%_O-%TT%00005" Number="5" Name="BatterySoc"   Text="" FunctionText="" ObjectSize="1 Byte"  DatapointType="DPST-5-1"   ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" />
+              <!-- Netzleistung: Bezug positiv, Einspeisung negativ (DPT 14.056 W) -->
+              <ComObject Id="%AID%_O-%TT%00006" Number="6"  Name="GridPower"       Text="" FunctionText="" ObjectSize="4 Bytes" DatapointType="DPST-14-56" ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" />
+              <!-- Gerätewerte aus devices[] (Zuordnung über die _id) -->
+              <ComObject Id="%AID%_O-%TT%00013" Number="13" Name="DevicePower" Text="" FunctionText="" ObjectSize="4 Bytes" DatapointType="DPST-14-56" ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" />
+              <ComObject Id="%AID%_O-%TT%00014" Number="14" Name="DeviceTemp"  Text="" FunctionText="" ObjectSize="2 Bytes" DatapointType="DPST-9-1"   ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" />
+              <ComObject Id="%AID%_O-%TT%00015" Number="15" Name="DeviceFault" Text="" FunctionText="" ObjectSize="1 Bit"   DatapointType="DPST-1-5"   ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" />
             </ComObjectTable>
             <ComObjectRefs>
               <ComObjectRef Id="%AID%_O-%TT%00000_R-%TT%0000001" RefId="%AID%_O-%TT%00000" Text="Modbus-Server aktiv" FunctionText="Status" />
-              <ComObjectRef Id="%AID%_O-%TT%00001_R-%TT%0000101" RefId="%AID%_O-%TT%00001" Text="EX.1-API erreichbar" FunctionText="Status" />
-              <ComObjectRef Id="%AID%_O-%TT%00002_R-%TT%0000201" RefId="%AID%_O-%TT%00002" Text="PV-Leistung"       FunctionText="EX.1 Messwert" />
-              <ComObjectRef Id="%AID%_O-%TT%00003_R-%TT%0000301" RefId="%AID%_O-%TT%00003" Text="Verbrauch"         FunctionText="EX.1 Messwert" />
-              <ComObjectRef Id="%AID%_O-%TT%00004_R-%TT%0000401" RefId="%AID%_O-%TT%00004" Text="Batterie-Leistung" FunctionText="EX.1 Messwert" />
-              <ComObjectRef Id="%AID%_O-%TT%00005_R-%TT%0000501" RefId="%AID%_O-%TT%00005" Text="Batterie-SoC"      FunctionText="EX.1 Messwert" />
+              <ComObjectRef Id="%AID%_O-%TT%00001_R-%TT%0000101" RefId="%AID%_O-%TT%00001" Text="EX 1-API erreichbar" FunctionText="Status" />
+              <ComObjectRef Id="%AID%_O-%TT%00002_R-%TT%0000201" RefId="%AID%_O-%TT%00002" Text="PV-Leistung"       FunctionText="EX 1 Messwert" />
+              <ComObjectRef Id="%AID%_O-%TT%00003_R-%TT%0000301" RefId="%AID%_O-%TT%00003" Text="Verbrauch"         FunctionText="EX 1 Messwert" />
+              <ComObjectRef Id="%AID%_O-%TT%00004_R-%TT%0000401" RefId="%AID%_O-%TT%00004" Text="Batterie-Leistung" FunctionText="EX 1 Messwert" />
+              <ComObjectRef Id="%AID%_O-%TT%00005_R-%TT%0000501" RefId="%AID%_O-%TT%00005" Text="Batterie-SoC"      FunctionText="EX 1 Messwert" />
+              <ComObjectRef Id="%AID%_O-%TT%00006_R-%TT%0000601" RefId="%AID%_O-%TT%00006" Text="Netzleistung"           FunctionText="EX 1 Messwert" />
+              <ComObjectRef Id="%AID%_O-%TT%00013_R-%TT%0001301" RefId="%AID%_O-%TT%00013" Text="{{0:Geräteleistung}}"   FunctionText="EX 1 Gerät" TextParameterRefId="%AID%_UP-%TT%00059_R-%TT%0005901" />
+              <ComObjectRef Id="%AID%_O-%TT%00014_R-%TT%0001401" RefId="%AID%_O-%TT%00014" Text="{{0:Gerätetemperatur}}" FunctionText="EX 1 Gerät" TextParameterRefId="%AID%_UP-%TT%00060_R-%TT%0006001" />
+              <ComObjectRef Id="%AID%_O-%TT%00015_R-%TT%0001501" RefId="%AID%_O-%TT%00015" Text="{{0:Gerätestörung}}"    FunctionText="EX 1 Gerät" TextParameterRefId="%AID%_UP-%TT%00061_R-%TT%0006101" />
             </ComObjectRefs>
           </Static>
           <Dynamic>
@@ -224,7 +332,7 @@
                 <ParameterRefRef IndentLevel="1" RefId="%AID%_UP-%TT%00001_R-%TT%0000101" HelpContext="EEX-Modbus-Server-Ports" />
                 <ParameterRefRef IndentLevel="1" RefId="%AID%_UP-%TT%00002_R-%TT%0000201" HelpContext="EEX-Modbus-Server-Ports" />
                 <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
-                <ParameterSeparator Id="%AID%_PS-nnn" Text="Virtual Switch (Schalten, EX.1 → KNX)" UIHint="Headline" />
+                <ParameterSeparator Id="%AID%_PS-nnn" Text="Virtual Switch (Schalten, EX 1 → KNX)" UIHint="Headline" />
                 <ParameterRefRef IndentLevel="1" RefId="%AID%_UP-%TT%00003_R-%TT%0000301" HelpContext="EEX-EX1-API" />
                 <ParameterRefRef IndentLevel="1" RefId="%AID%_UP-%TT%00027_R-%TT%0002701" HelpContext="EEX-EX1-API" />
                 <choose ParamRefId="%AID%_UP-%TT%00027_R-%TT%0002701">
@@ -237,11 +345,18 @@
                 <ParameterSeparator Id="%AID%_PS-nnn" Text="Kanalauswahl" UIHint="Headline" />
                 <ParameterRefRef IndentLevel="1" RefId="%AID%_UP-%TT%00000_R-%TT%0000001" HelpContext="EEX-Kanalauswahl" />
                 <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
-                <ParameterSeparator Id="%AID%_PS-nnn" Text="Messwerte-Auswahl (EX.1 → KNX)" UIHint="Headline" />
+                <ParameterSeparator Id="%AID%_PS-nnn" Text="Messwerte-Auswahl (EX 1 → KNX)" UIHint="Headline" />
+                <ParameterSeparator Id="%AID%_PS-nnn" Text="Einstellungen zu den gewählten Werten stehen auf der Seite 'EX 1 Messwerte'." />
                 <ParameterRefRef IndentLevel="1" RefId="%AID%_UP-%TT%00005_R-%TT%0000501" HelpContext="EEX-Messwerte-Auswahl" />
                 <ParameterRefRef IndentLevel="1" RefId="%AID%_UP-%TT%00006_R-%TT%0000601" HelpContext="EEX-Messwerte-Auswahl" />
                 <ParameterRefRef IndentLevel="1" RefId="%AID%_UP-%TT%00007_R-%TT%0000701" HelpContext="EEX-Messwerte-Auswahl" />
                 <ParameterRefRef IndentLevel="1" RefId="%AID%_UP-%TT%00008_R-%TT%0000801" HelpContext="EEX-Messwerte-Auswahl" />
+                <ParameterRefRef IndentLevel="1" RefId="%AID%_UP-%TT%00029_R-%TT%0002901" HelpContext="EEX-Messwerte-Auswahl" />
+                <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
+                <ParameterSeparator Id="%AID%_PS-nnn" Text="Gerätewerte (EX 1 → KNX)" UIHint="Headline" />
+                <ParameterRefRef IndentLevel="1" RefId="%AID%_UP-%TT%00046_R-%TT%0004601" HelpContext="EEX-Geraetewerte" />
+                <ParameterRefRef IndentLevel="1" RefId="%AID%_UP-%TT%00047_R-%TT%0004701" HelpContext="EEX-Geraetewerte" />
+                <ParameterRefRef IndentLevel="1" RefId="%AID%_UP-%TT%00048_R-%TT%0004801" HelpContext="EEX-Geraetewerte" />
                 <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
                 <ParameterSeparator Id="%AID%_PS-nnn" Text="Status" UIHint="Headline" />
                 <ParameterRefRef IndentLevel="1" RefId="%AID%_UP-%TT%00025_R-%TT%0002501" HelpContext="EEX-Statusobjekte" />
@@ -257,8 +372,8 @@
                   </when>
                 </choose>
               </ParameterBlock>
-              <ParameterBlock Id="%AID%_PB-nnn" Name="EEXMeasurements" Text="EX.1 Messwerte" Icon="gauge" HelpContext="EEX-EX1-Messwerte">
-                <ParameterSeparator Id="%AID%_PS-nnn" Text="EX.1 Messwerte (API → KNX)" UIHint="Headline" />
+              <ParameterBlock Id="%AID%_PB-nnn" Name="EEXMeasurements" Text="EX 1 Messwerte" Icon="gauge" HelpContext="EEX-EX1-Messwerte">
+                <ParameterSeparator Id="%AID%_PS-nnn" Text="EX 1 Messwerte (API → KNX)" UIHint="Headline" />
                 <ParameterSeparator Id="%AID%_PS-nnn" Text="Auswahl der gesendeten Werte auf der Seite Allgemein." />
                 <choose ParamRefId="%AID%_UP-%TT%00005_R-%TT%0000501">
                   <when test="=1">
@@ -302,6 +417,55 @@
                     <ParameterRefRef IndentLevel="1" RefId="%AID%_UP-%TT%00024_R-%TT%0002401" />
                     <ParameterRefRef IndentLevel="1" RefId="%AID%_UP-%TT%00023_R-%TT%0002301" />
                     <ComObjectRefRef RefId="%AID%_O-%TT%00005_R-%TT%0000501" />
+                  </when>
+                </choose>
+                <choose ParamRefId="%AID%_UP-%TT%00029_R-%TT%0002901">
+                  <when test="=1">
+                    <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
+                    <ParameterSeparator Id="%AID%_PS-nnn" Text="Netzleistung (Bezug +, Einspeisung -)" UIHint="Headline" />
+                    <ParameterRefRef IndentLevel="1" RefId="%AID%_UP-%TT%00036_R-%TT%0003601" />
+                    <ParameterRefRef IndentLevel="1" RefId="%AID%_UP-%TT%00037_R-%TT%0003701" />
+                    <ParameterRefRef IndentLevel="1" RefId="%AID%_UP-%TT%00038_R-%TT%0003801" />
+                    <ParameterRefRef IndentLevel="1" RefId="%AID%_UP-%TT%00039_R-%TT%0003901" />
+                    <ComObjectRefRef RefId="%AID%_O-%TT%00006_R-%TT%0000601" />
+                  </when>
+                </choose>
+                <!-- Gerätewerte aus devices[]: je Wert eigene Geräte-ID, da die Werte von
+                     unterschiedlichen Geräten stammen können (z. B. Temperatur vom Speicher,
+                     Leistung vom Netzzähler). -->
+                <choose ParamRefId="%AID%_UP-%TT%00046_R-%TT%0004601">
+                  <when test="=1">
+                    <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
+                    <ParameterSeparator Id="%AID%_PS-nnn" Text="Geräteleistung" UIHint="Headline" />
+                    <ParameterRefRef IndentLevel="1" RefId="%AID%_UP-%TT%00059_R-%TT%0005901" HelpContext="EEX-Geraetewerte" />
+                    <ParameterRefRef IndentLevel="1" RefId="%AID%_UP-%TT%00049_R-%TT%0004901" HelpContext="EEX-Geraetewerte" />
+                    <ParameterRefRef IndentLevel="1" RefId="%AID%_UP-%TT%00052_R-%TT%0005201" />
+                    <ParameterRefRef IndentLevel="1" RefId="%AID%_UP-%TT%00053_R-%TT%0005301" />
+                    <ParameterRefRef IndentLevel="1" RefId="%AID%_UP-%TT%00055_R-%TT%0005501" />
+                    <ParameterRefRef IndentLevel="1" RefId="%AID%_UP-%TT%00054_R-%TT%0005401" />
+                    <ComObjectRefRef RefId="%AID%_O-%TT%00013_R-%TT%0001301" />
+                  </when>
+                </choose>
+                <choose ParamRefId="%AID%_UP-%TT%00047_R-%TT%0004701">
+                  <when test="=1">
+                    <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
+                    <ParameterSeparator Id="%AID%_PS-nnn" Text="Gerätetemperatur" UIHint="Headline" />
+                    <ParameterRefRef IndentLevel="1" RefId="%AID%_UP-%TT%00060_R-%TT%0006001" HelpContext="EEX-Geraetewerte" />
+                    <ParameterRefRef IndentLevel="1" RefId="%AID%_UP-%TT%00050_R-%TT%0005001" HelpContext="EEX-Geraetewerte" />
+                    <ParameterRefRef IndentLevel="1" RefId="%AID%_UP-%TT%00056_R-%TT%0005601" />
+                    <ParameterRefRef IndentLevel="1" RefId="%AID%_UP-%TT%00058_R-%TT%0005801" />
+                    <ParameterRefRef IndentLevel="1" RefId="%AID%_UP-%TT%00057_R-%TT%0005701" />
+                    <ComObjectRefRef RefId="%AID%_O-%TT%00014_R-%TT%0001401" />
+                  </when>
+                </choose>
+                <choose ParamRefId="%AID%_UP-%TT%00048_R-%TT%0004801">
+                  <when test="=1">
+                    <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
+                    <ParameterSeparator Id="%AID%_PS-nnn" Text="Gerätestörung" UIHint="Headline" />
+                    <ParameterRefRef IndentLevel="1" RefId="%AID%_UP-%TT%00061_R-%TT%0006101" HelpContext="EEX-Geraetewerte" />
+                    <ParameterRefRef IndentLevel="1" RefId="%AID%_UP-%TT%00051_R-%TT%0005101" HelpContext="EEX-Geraetewerte" />
+                    <ParameterSeparator Id="%AID%_PS-nnn" Text="Sendet 1, sobald das Gerät nicht mehr verbunden ist (nur bei Änderung)." />
+                    <ComObjectRefRef RefId="%AID%_O-%TT%00015_R-%TT%0001501" />
                   </when>
                 </choose>
               </ParameterBlock>

@@ -223,7 +223,9 @@ void EnergyEdgeModule::readFlash(const uint8_t* data, const uint16_t size)
 bool EnergyEdgeModule::measurementsEnabled()
 {
     return (bool)ParamEEX_MvPvEnable || (bool)ParamEEX_MvConsEnable ||
-           (bool)ParamEEX_MvBatEnable || (bool)ParamEEX_MvSocEnable;
+           (bool)ParamEEX_MvBatEnable || (bool)ParamEEX_MvSocEnable ||
+           (bool)ParamEEX_MvGridEnable || (bool)ParamEEX_MvDevPowerEnable ||
+           (bool)ParamEEX_MvDevTempEnable || (bool)ParamEEX_MvDevFaultEnable;
 }
 
 void EnergyEdgeModule::pollEx1Api()
@@ -331,19 +333,87 @@ void EnergyEdgeModule::processPointResponse(const std::string& body)
                         ParamEEX_MvConsDelayTimeMS, cW, KoEEX_Consumption, DPT_Value_Power);
         sendMeasurement(_mvBat, ParamEEX_MvBatEnable, ParamEEX_MvBatChangeMode, ParamEEX_MvBatThreshold,
                         ParamEEX_MvBatDelayTimeMS, bat, KoEEX_BatteryPower, DPT_Value_Power);
+        // Netzleistung: die API liefert kein iW/eW - der Wert folgt aus der Energiebilanz
+        // (Bezug positiv, Einspeisung negativ) und deckt sich mit dem Netzzähler-Gerät.
+        float gridW = cW - pW + bcW - bdW;
+        sendMeasurement(_mvGrid, ParamEEX_MvGridEnable, ParamEEX_MvGridChangeMode, ParamEEX_MvGridThreshold,
+                        ParamEEX_MvGridDelayTimeMS, gridW, KoEEX_GridPower, DPT_Value_Power);
+
+        // Tageszähler und Eigenverbrauch/Autarkie (pWh/cWh/eWh/iWh/scWh/cPvWh) wurden entfernt:
+        // am Gerät verifiziert, dass diese Felder nicht monoton sind (springen auch abwärts,
+        // cPvWh spiegelt immer exakt cWh) - keine belastbare Datenquelle für Tageswerte.
+
         sendMeasurement(_mvSoc, ParamEEX_MvSocEnable, ParamEEX_MvSocChangeMode, (float)ParamEEX_MvSocThreshold,
                         ParamEEX_MvSocDelayTimeMS, soc, KoEEX_BatterySoc, DPT_Scaling);
     }
 
-    // --- Virtual-Switch-Zustände (devices-Array) ---
-    if (_switches.empty())
-        return;
+    // --- devices-Array: Gerätewerte + Virtual-Switch-Zustände ---
     JsonArray arr;
     if (doc["devices"].is<JsonArray>())
         arr = doc["devices"].as<JsonArray>();
     else if (doc.is<JsonArray>())
         arr = doc.as<JsonArray>();
     else
+        return;
+
+    // Gerätewerte: je Wert eine eigene _id, da sie von unterschiedlichen Geräten kommen
+    // können (Temperatur vom Speicher, Leistung vom Netzzähler). Leere ID -> Wert aus.
+    if (ParamEEX_MvDevPowerEnable)
+    {
+        const char* wantId = (const char*)ParamEEX_MvDevPowerId;
+        if (wantId && wantId[0])
+            for (JsonObject dev : arr)
+            {
+                const char* id = dev["_id"];
+                if (id && strcmp(id, wantId) == 0 && !dev["power"].isNull())
+                {
+                    sendMeasurement(_mvDevPower, true, ParamEEX_MvDevPowerChangeMode,
+                                    ParamEEX_MvDevPowerThreshold, ParamEEX_MvDevPowerDelayTimeMS,
+                                    dev["power"] | 0.0f, KoEEX_DevicePower, DPT_Value_Power);
+                    break;
+                }
+            }
+    }
+    if (ParamEEX_MvDevTempEnable)
+    {
+        const char* wantId = (const char*)ParamEEX_MvDevTempId;
+        if (wantId && wantId[0])
+            for (JsonObject dev : arr)
+            {
+                const char* id = dev["_id"];
+                if (id && strcmp(id, wantId) == 0 && !dev["temperature"].isNull())
+                {
+                    sendMeasurement(_mvDevTemp, true, 0, ParamEEX_MvDevTempThreshold,
+                                    ParamEEX_MvDevTempDelayTimeMS, dev["temperature"] | 0.0f,
+                                    KoEEX_DeviceTemp, DPT_Value_Temp);
+                    break;
+                }
+            }
+    }
+    if (ParamEEX_MvDevFaultEnable)
+    {
+        const char* wantId = (const char*)ParamEEX_MvDevFaultId;
+        if (wantId && wantId[0])
+            for (JsonObject dev : arr)
+            {
+                const char* id = dev["_id"];
+                if (id && strcmp(id, wantId) == 0)
+                {
+                    const char* sig = dev["signal"];
+                    // Alles außer "connected" gilt als Störung.
+                    bool fault = !(sig && strcmp(sig, "connected") == 0);
+                    if (!_devFaultSent || fault != _devFault)
+                    {
+                        _devFault = fault;
+                        _devFaultSent = true;
+                        KoEEX_DeviceFault.value(fault, DPT_Alarm);
+                    }
+                    break;
+                }
+            }
+    }
+
+    if (_switches.empty())
         return;
 
     for (auto* sw : _switches)
