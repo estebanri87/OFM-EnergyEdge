@@ -31,10 +31,10 @@ const std::string EnergyEdgeModule::version()
 
 OpenKNX::Channel* EnergyEdgeModule::createChannel(uint8_t _channelIndex /* used in macros, do not rename */)
 {
-    // Nur konfigurierte Kanäle anlegen. Kanäle jenseits von "Aktive Kanäle" sind in der ETS
-    // nicht sichtbar und haben deshalb keine gültige Konfiguration (Unit-ID 0). Sie dürfen
-    // keinen Modbus-Worker registrieren - Unit-ID 0 ist in Modbus Broadcast/ungültig.
-    if (_channelIndex >= ParamEEX_EEXVisibleChannels)
+    // Nur aktivierte Kanäle anlegen. Deaktivierte Kanäle sind in der ETS nicht sichtbar und
+    // haben deshalb keine gültige Konfiguration (Unit-ID 0). Sie dürfen keinen Modbus-Worker
+    // registrieren - Unit-ID 0 ist in Modbus Broadcast/ungültig.
+    if (ParamEEX_CHCategory == EEX_CAT_DISABLED)
         return nullptr;
 
     // Kategorie bestimmt Kanalklasse/Richtung.
@@ -131,8 +131,13 @@ void EnergyEdgeModule::updateStatusKos()
         _lastModbusActive = anyRecent;
         KoEEX_ModbusActive.value(anyRecent, DPT_Switch);
     }
-    // Global: "EX.1-API erreichbar" (nur relevant, wenn Schalter-Kanäle den EX.1 pollen).
-    if ((bool)ParamEEX_ShowApiReachable && !_switches.empty() &&
+    // Global: "EX.1-API erreichbar" (nur relevant, wenn Schalter-Kanäle oder Messwerte den
+    // EX.1 pollen).
+    bool apiUsed = !_switches.empty();
+#ifdef OPENKNX_WEBCLIENT
+    apiUsed = apiUsed || measurementsEnabled();
+#endif
+    if ((bool)ParamEEX_ShowApiReachable && apiUsed &&
         (!_statusSent || _apiReachable != _lastApiReachable))
     {
         _lastApiReachable = _apiReachable;
@@ -246,9 +251,9 @@ void EnergyEdgeModule::pollEx1Api()
     if (!ip || !ip[0])
         return;
 
-    // Protokoll per ETS: HTTPS ist der Normalfall (der EX.1 schließt Port 80, sobald die
-    // verschlüsselte API aktiv ist). Das Gerätezertifikat ist ein AWS-IoT-Cert ohne bekannte
-    // CA-Kette - der ESP32-Webclient nutzt bei https:// per Default setInsecure().
+    // Protokoll per ETS. Der EX.1 bedient HTTP (Port 80) und HTTPS parallel. HTTPS nimmt er
+    // jedoch nur mit TLS 1.3 an - das beherrschen weder BearSSL (RP2040) noch das
+    // vorkompilierte mbedTLS (ESP32). Praktisch nutzbar ist daher derzeit nur HTTP.
     bool useHttps = (ParamEEX_EX1ApiProtocol == 1);
     std::string url = useHttps ? "https://" : "http://";
     url += ip;
@@ -258,13 +263,11 @@ void EnergyEdgeModule::pollEx1Api()
     req.maxBodySize(4096);
 
     // Ist im Installateur-Portal ein API-Key hinterlegt, verlangt der EX.1 ihn im Header
-    // "x-api-key" (Bearer/Authorization werden mit 401 abgewiesen). Leerer Key = ohne Auth.
-    if (useHttps)
-    {
-        const char* apiKey = (const char*)ParamEEX_EX1ApiKey;
-        if (apiKey && apiKey[0])
-            req.header("x-api-key", apiKey);
-    }
+    // "x-api-key" - bei HTTP und HTTPS (Bearer/Authorization werden mit 401 abgewiesen).
+    // Leerer Key = ohne Auth.
+    const char* apiKey = (const char*)ParamEEX_EX1ApiKey;
+    if (apiKey && apiKey[0])
+        req.header("x-api-key", apiKey);
 
     req.onDone([this](const OpenKNX::Network::Webclient::Response& res) {
            _apiReachable = res.success();

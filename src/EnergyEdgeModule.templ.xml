@@ -7,14 +7,16 @@
         <ApplicationProgram>
           <Static>
             <Parameters>
-              <!-- Kanal-Bezeichnung -->
-              <Parameter Id="%AID%_P-%TT%%CC%000" Name="Channel%C%Name" ParameterType="%AID%_PT-Text40Byte" Text="Bezeichnung" Value="" />
+              <!-- Kanal-Beschreibung -->
+              <Parameter Id="%AID%_P-%TT%%CC%000" Name="Channel%C%Name" ParameterType="%AID%_PT-Text40Byte" Text="Beschreibung" Value="" />
 
               <!-- Kategorie (Byte 0) -->
               <Union SizeInBit="8">
                 <Memory CodeSegment="%MID%" Offset="0" BitOffset="0" />
                 <Parameter Id="%AID%_UP-%TT%%CC%001" Name="CH%C%Category" ParameterType="%AID%_PT-EEXCategory" Offset="0" BitOffset="0" Text="Kategorie" Value="0" />
               </Union>
+              <!-- Kategorie auf dem Kanal-Tab (TypeSelect): kein Speicher, nur in der ETS -->
+              <Parameter Id="%AID%_P-%TT%%CC%011" Name="CH%C%CategorySelect" ParameterType="%AID%_PT-EEXCategorySelect" Text="Kategorie" Value="1" />
 
               <!-- Modbus-Profil (Verbraucher) (Byte 1) -->
               <Union SizeInBit="8">
@@ -83,7 +85,20 @@
               <ParameterRef Id="%AID%_UP-%TT%%CC%008_R-%TT%%CC%00801" RefId="%AID%_UP-%TT%%CC%008" />
               <ParameterRef Id="%AID%_UP-%TT%%CC%009_R-%TT%%CC%00901" RefId="%AID%_UP-%TT%%CC%009" />
               <ParameterRef Id="%AID%_UP-%TT%%CC%010_R-%TT%%CC%01001" RefId="%AID%_UP-%TT%%CC%010" />
+              <ParameterRef Id="%AID%_P-%TT%%CC%011_R-%TT%%CC%01101" RefId="%AID%_P-%TT%%CC%011" />
             </ParameterRefs>
+
+            <ParameterCalculations>
+              <!-- Kategorie zwischen Kanalauswahl und Kanal-Tab synchronisieren -->
+              <ParameterCalculation Id="%AID%_PC-%TT%%CC%001" Language="JavaScript" Name="SyncType%CC%" RLTransformationFunc="BASE_SyncChannelType" LRTransformationFunc="BASE_SyncChannelType">
+                <LParameters>
+                  <ParameterRefRef RefId="%AID%_P-%TT%%CC%011_R-%TT%%CC%01101" AliasName="TypeValue" />
+                </LParameters>
+                <RParameters>
+                  <ParameterRefRef RefId="%AID%_UP-%TT%%CC%001_R-%TT%%CC%00101" AliasName="TypeValue" />
+                </RParameters>
+              </ParameterCalculation>
+            </ParameterCalculations>
 
             <ComObjectTable>
               <!-- KO 0: Wirkleistung (Eingang vom KNX-Bus, DPT 14.056 W) - Zähler-Kategorien -->
@@ -118,44 +133,63 @@
 
           <Dynamic>
             <ChannelIndependentBlock>
-              <!-- Kanalanzahl steuert Sichtbarkeit -->
-              <choose ParamRefId="%AID%_UP-%TT%00000_R-%TT%0000001">
-                <when test="&gt;=%C%">
+              <!-- Zeile der Kanalauswahl-Tabelle (eine einzeilige Tabelle je Kanal) -->
+              <ParameterBlock Id="%AID%_PB-nnn" Name="Settings">
+                <ParameterBlock Id="%AID%_PB-nnn" Inline="true" Layout="Grid">
+                  <Rows>
+                    <Row Id="%AID%_PB-nnn_R-1" />
+                  </Rows>
+                  <Columns>
+                    <Column Id="%AID%_PB-nnn_C-1" Width="15%" />
+                    <Column Id="%AID%_PB-nnn_C-2" Width="35%" />
+                    <Column Id="%AID%_PB-nnn_C-3" Width="50%" />
+                  </Columns>
+                  <ParameterSeparator Id="%AID%_PS-nnn" Cell="1,1" Text="Kanal %C%" />
+                  <!-- Haupttyp (mit Speicher, mit "Deaktiviert") - nur hier wird aktiviert/deaktiviert -->
+                  <ParameterRefRef RefId="%AID%_UP-%TT%%CC%001_R-%TT%%CC%00101" Cell="1,2" HelpContext="EEX-Kategorie" />
+                  <!-- Beschreibung bleibt auch bei Deaktiviert sichtbar -->
+                  <ParameterRefRef RefId="%AID%_P-%TT%%CC%000_R-%TT%%CC%00001" Cell="1,3" HelpContext="BASE-ChannelName" />
+                </ParameterBlock>
+              </ParameterBlock>
+
+              <!-- Kanal-Tab (nur sichtbar, wenn eine Kategorie gewählt ist) -->
+              <ParameterBlock Id="%AID%_PB-nnn" Name="Channel">
+                <choose ParamRefId="%AID%_UP-%TT%%CC%001_R-%TT%%CC%00101">
+                  <when test="&gt;0">
                   <ParameterBlock Id="%AID%_PB-nnn" Name="f%CC%EEX" Text="Kanal %C%: {{0: ...}}" TextParameterRefId="%AID%_P-%TT%%CC%000_R-%TT%%CC%00001" Icon="meter-electric-outline" ShowInComObjectTree="true">
 
-                    <ParameterSeparator Id="%AID%_PS-nnn" Text="Kanal %C%" UIHint="Headline" />
-                    <ParameterRefRef RefId="%AID%_P-%TT%%CC%000_R-%TT%%CC%00001" />
-                    <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
+                    <ParameterSeparator Id="%AID%_PS-nnn" Text="Kanaldefinition" UIHint="Headline" />
+                    <ParameterRefRef RefId="%AID%_P-%TT%%CC%000_R-%TT%%CC%00001" HelpContext="BASE-ChannelName" />
+                    <!-- Kategorie (ohne "Deaktiviert", synchron zur Kanalauswahl) -->
+                    <ParameterRefRef RefId="%AID%_P-%TT%%CC%011_R-%TT%%CC%01101" HelpContext="EEX-Kategorie" />
 
-                    <!-- Kategorie / Profil -->
-                    <ParameterSeparator Id="%AID%_PS-nnn" Text="Gerät" UIHint="Headline" />
-                    <ParameterRefRef RefId="%AID%_UP-%TT%%CC%001_R-%TT%%CC%00101" HelpContext="EEX-Kategorie" />
+                    <!-- Kategorie-abhängige Hinweise / Profil -->
                     <choose ParamRefId="%AID%_UP-%TT%%CC%001_R-%TT%%CC%00101">
                       <!-- Modbus-Profil nur bei Verbraucher-Zählern (Energiemessung, Smart Meter) -->
-                      <when test="&lt;2">
+                      <when test="&lt;3">
                         <ParameterRefRef RefId="%AID%_UP-%TT%%CC%002_R-%TT%%CC%00201" HelpContext="EEX-Modbus-Profil" />
                       </when>
                       <!-- Schalter/Virtual Switch: Hinweis + _id -->
-                      <when test="=2">
+                      <when test="=3">
                         <ParameterSeparator Id="%AID%_PS-nnn" Text="Schalter/Virtual Switch: der Zustand wird über die lokale EX 1-API (Virtual Switch) gelesen und schaltet einen KNX-Aktorkanal. Die PV-Überschuss-Logik liegt im EX 1." UIHint="Information" />
                         <ParameterRefRef RefId="%AID%_UP-%TT%%CC%009_R-%TT%%CC%00901" HelpContext="EEX-Virtual-Switch-ID" />
                       </when>
                       <!-- Wechselrichter: SolarEdge -->
-                      <when test="=3">
+                      <when test="=4">
                         <ParameterSeparator Id="%AID%_PS-nnn" Text="Profil: SolarEdge (SunSpec) – emuliert einen einphasigen Wechselrichter." UIHint="Information" />
                       </when>
                     </choose>
 
                     <!-- Modbus (nur Zähler-Kategorien, nicht Schalter) -->
                     <choose ParamRefId="%AID%_UP-%TT%%CC%001_R-%TT%%CC%00101">
-                      <when test="!=2">
+                      <when test="!=3">
                         <ParameterSeparator Id="%AID%_PS-nnn" Text="Modbus" UIHint="Headline" />
                         <ParameterRefRef RefId="%AID%_UP-%TT%%CC%003_R-%TT%%CC%00301" HelpContext="EEX-Unit-ID" />
                       </when>
                     </choose>
                     <!-- Hinweis Sub-Meter/ZEV nur bei Smart Meter -->
                     <choose ParamRefId="%AID%_UP-%TT%%CC%001_R-%TT%%CC%00101">
-                      <when test="=1">
+                      <when test="=2">
                         <ParameterSeparator Id="%AID%_PS-nnn" Text="Als 'Sub-Meter' / ZEV im EX 1 einbinden: dort gibt es kein Geräte-ID-Feld, der EX 1 fragt immer Unit-ID 1 ab und unterscheidet nur über die IP (ein Sub-Meter pro IP). Für diesen Fall Unit-ID 1 setzen." UIHint="Information" />
                       </when>
                     </choose>
@@ -168,7 +202,7 @@
 
                     <!-- SunSpec-Identität nur bei Wechselrichter -->
                     <choose ParamRefId="%AID%_UP-%TT%%CC%001_R-%TT%%CC%00101">
-                      <when test="=3">
+                      <when test="=4">
                         <ParameterSeparator Id="%AID%_PS-nnn" Text="SunSpec-Identität" UIHint="Headline" />
                         <ParameterRefRef RefId="%AID%_UP-%TT%%CC%007_R-%TT%%CC%00701" HelpContext="EEX-SolarEdge-Identitaet" />
                         <ParameterRefRef RefId="%AID%_UP-%TT%%CC%008_R-%TT%%CC%00801" HelpContext="EEX-SolarEdge-Identitaet" />
@@ -177,7 +211,7 @@
 
                     <!-- Verhalten (nur Zähler-Kategorien) -->
                     <choose ParamRefId="%AID%_UP-%TT%%CC%001_R-%TT%%CC%00101">
-                      <when test="!=2">
+                      <when test="!=3">
                         <ParameterSeparator Id="%AID%_PS-nnn" Text="Verhalten" UIHint="Headline" />
                         <ParameterRefRef RefId="%AID%_UP-%TT%%CC%005_R-%TT%%CC%00501" HelpContext="EEX-Watchdog" />
                         <ParameterRefRef RefId="%AID%_UP-%TT%%CC%004_R-%TT%%CC%00401" HelpContext="EEX-Aufbereitung" />
@@ -187,31 +221,31 @@
                     </choose>
 
                     <!-- KO: Zähler -> Wirkleistung (Objektfunktion je Kategorie), Schalter -> Schaltausgang -->
-                    <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
                     <choose ParamRefId="%AID%_UP-%TT%%CC%001_R-%TT%%CC%00101">
-                      <when test="=0"><ComObjectRefRef RefId="%AID%_O-%TT%%CC%000_R-%TT%%CC%00001" /></when>
-                      <when test="=1">
+                      <when test="=1"><ComObjectRefRef RefId="%AID%_O-%TT%%CC%000_R-%TT%%CC%00001" /></when>
+                      <when test="=2">
                         <ComObjectRefRef RefId="%AID%_O-%TT%%CC%000_R-%TT%%CC%00002" />
                         <ComObjectRefRef RefId="%AID%_O-%TT%%CC%003_R-%TT%%CC%00301" />
                         <ComObjectRefRef RefId="%AID%_O-%TT%%CC%004_R-%TT%%CC%00401" />
                       </when>
-                      <when test="=2"><ComObjectRefRef RefId="%AID%_O-%TT%%CC%001_R-%TT%%CC%00101" /></when>
-                      <when test="=3"><ComObjectRefRef RefId="%AID%_O-%TT%%CC%000_R-%TT%%CC%00003" /></when>
+                      <when test="=3"><ComObjectRefRef RefId="%AID%_O-%TT%%CC%001_R-%TT%%CC%00101" /></when>
+                      <when test="=4"><ComObjectRefRef RefId="%AID%_O-%TT%%CC%000_R-%TT%%CC%00003" /></when>
                     </choose>
                     <!-- Letzte-Abfrage-KO (nur Zähler-Kategorien, per Checkbox ein-/ausblendbar, Objektfunktion je Kategorie) -->
                     <choose ParamRefId="%AID%_UP-%TT%%CC%010_R-%TT%%CC%01001">
                       <when test="=1">
                         <choose ParamRefId="%AID%_UP-%TT%%CC%001_R-%TT%%CC%00101">
-                          <when test="=0"><ComObjectRefRef RefId="%AID%_O-%TT%%CC%002_R-%TT%%CC%00201" /></when>
-                          <when test="=1"><ComObjectRefRef RefId="%AID%_O-%TT%%CC%002_R-%TT%%CC%00202" /></when>
-                          <when test="=3"><ComObjectRefRef RefId="%AID%_O-%TT%%CC%002_R-%TT%%CC%00203" /></when>
+                          <when test="=1"><ComObjectRefRef RefId="%AID%_O-%TT%%CC%002_R-%TT%%CC%00201" /></when>
+                          <when test="=2"><ComObjectRefRef RefId="%AID%_O-%TT%%CC%002_R-%TT%%CC%00202" /></when>
+                          <when test="=4"><ComObjectRefRef RefId="%AID%_O-%TT%%CC%002_R-%TT%%CC%00203" /></when>
                         </choose>
                       </when>
                     </choose>
 
                   </ParameterBlock>
-                </when>
-              </choose>
+                  </when>
+                </choose>
+              </ParameterBlock>
             </ChannelIndependentBlock>
           </Dynamic>
 

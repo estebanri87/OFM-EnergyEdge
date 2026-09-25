@@ -3,10 +3,11 @@
 #include "ModbusSource.h"
 
 // Category values (ETS PT-EEXCategory enumeration). Primary, user-facing.
-#define EEX_CAT_ENERGYMETER 0 // Energiemessung (nur Wirkleistung)
-#define EEX_CAT_SMARTMETER  1 // Smart Meter (zusätzlich Bezug/Einspeisung)
-#define EEX_CAT_SWITCH      2 // Schalter/Virtual Switch (EX.1 -> KNX)
-#define EEX_CAT_INVERTER    3 // Wechselrichter
+#define EEX_CAT_DISABLED    0 // Deaktiviert (Kanal wird nicht angelegt)
+#define EEX_CAT_ENERGYMETER 1 // Energiemessung (nur Wirkleistung)
+#define EEX_CAT_SMARTMETER  2 // Smart Meter (zusätzlich Bezug/Einspeisung)
+#define EEX_CAT_SWITCH      3 // Schalter/Virtual Switch (EX.1 -> KNX)
+#define EEX_CAT_INVERTER    4 // Wechselrichter
 
 // Consumer profile values (ETS PT-EEXConsumerProfile). Inverter category implies
 // SolarEdge SunSpec; consumer categories choose between these two.

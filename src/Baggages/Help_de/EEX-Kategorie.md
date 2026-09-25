@@ -1,7 +1,11 @@
 ﻿### Kategorie
 
-Legt Richtung und Funktion des Kanals fest:
+Legt Richtung und Funktion des Kanals fest. Die Kategorie wird in der Tabelle der Seite
+**Kanalauswahl** gewählt und kann auf dem Kanal-Tab gewechselt werden; deaktiviert wird ein
+Kanal nur in der Kanalauswahl.
 
+- **Deaktiviert** — der Kanal ist ausgeschaltet, erscheint nicht im ETS-Baum und wird von
+  der Firmware nicht angelegt.
 - **Energiemessung** — stellt die Wirkleistung (W) eines KNX-Verbrauchers dem EX 1 als
   Modbus-Zähler bereit (KO „Wirkleistung", DPT 14.056).
 - **Smart Meter** — wie Energiemessung, zusätzlich Bezug/Einspeisung (DPT 13.013, kWh). Die

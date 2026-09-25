@@ -1,22 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-model href="../../Organization/knxprod-support/knx_project_14/knx-editor.xsd" type="application/xml" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <KNX xmlns:op="http://github.com/OpenKNX/OpenKNXproducer" xmlns="http://knx.org/xml/project/14" CreatedBy="KNX MT" ToolVersion="5.1.255.16695">
-  <op:config name="%EEX_NumChannelsDefault%" value="4" />
   <ManufacturerData>
     <Manufacturer>
       <ApplicationPrograms>
         <ApplicationProgram>
           <Static>
             <ParameterTypes>
-              <ParameterType Id="%AID%_PT-EEXNumChannels" Name="EEXNumChannels">
-                <TypeNumber SizeInBit="8" Type="unsignedInt" minInclusive="0" maxInclusive="%N%" />
-              </ParameterType>
               <ParameterType Id="%AID%_PT-EEXCategory" Name="EEXCategory">
                 <TypeRestriction Base="Value" SizeInBit="8">
-                  <Enumeration Text="Energiemessung"          Value="0" Id="%AID%_PT-EEXCategory_EN-0" />
-                  <Enumeration Text="Smart Meter"             Value="1" Id="%AID%_PT-EEXCategory_EN-1" />
-                  <Enumeration Text="Schalter/Virtual Switch" Value="2" Id="%AID%_PT-EEXCategory_EN-2" />
-                  <Enumeration Text="Wechselrichter"          Value="3" Id="%AID%_PT-EEXCategory_EN-3" />
+                  <Enumeration Text="Deaktiviert"             Value="0" Id="%AID%_PT-EEXCategory_EN-0" />
+                  <Enumeration Text="Energiemessung"          Value="1" Id="%AID%_PT-EEXCategory_EN-1" />
+                  <Enumeration Text="Smart Meter"             Value="2" Id="%AID%_PT-EEXCategory_EN-2" />
+                  <Enumeration Text="Schalter/Virtual Switch" Value="3" Id="%AID%_PT-EEXCategory_EN-3" />
+                  <Enumeration Text="Wechselrichter"          Value="4" Id="%AID%_PT-EEXCategory_EN-4" />
+                </TypeRestriction>
+              </ParameterType>
+              <!-- Kategorie auf dem Kanal-Tab (TypeSelect, ohne "Deaktiviert"), gekoppelt per BASE_SyncChannelType -->
+              <ParameterType Id="%AID%_PT-EEXCategorySelect" Name="EEXCategorySelect">
+                <TypeRestriction Base="Value" SizeInBit="8">
+                  <Enumeration Text="Energiemessung"          Value="1" Id="%AID%_PT-EEXCategorySelect_EN-1" />
+                  <Enumeration Text="Smart Meter"             Value="2" Id="%AID%_PT-EEXCategorySelect_EN-2" />
+                  <Enumeration Text="Schalter/Virtual Switch" Value="3" Id="%AID%_PT-EEXCategorySelect_EN-3" />
+                  <Enumeration Text="Wechselrichter"          Value="4" Id="%AID%_PT-EEXCategorySelect_EN-4" />
                 </TypeRestriction>
               </ParameterType>
               <ParameterType Id="%AID%_PT-EEXConsumerProfile" Name="EEXConsumerProfile">
@@ -64,10 +70,6 @@
               </ParameterType>
             </ParameterTypes>
             <Parameters>
-              <Union SizeInBit="8">
-                <Memory CodeSegment="%MID%" Offset="0" BitOffset="0" />
-                <Parameter Id="%AID%_UP-%TT%00000" Name="EEXVisibleChannels" ParameterType="%AID%_PT-EEXNumChannels" Offset="0" BitOffset="0" Text="Aktive Kanäle" Value="%EEX_NumChannelsDefault%" SuffixText=" von %N%" />
-              </Union>
               <Union SizeInBit="16">
                 <Memory CodeSegment="%MID%" Offset="2" BitOffset="0" />
                 <Parameter Id="%AID%_UP-%TT%00001" Name="ConsumerPort" ParameterType="%AID%_PT-EEXPort" Offset="0" BitOffset="0" Text="Modbus-Port Verbraucher" Value="502" />
@@ -76,22 +78,22 @@
                 <Memory CodeSegment="%MID%" Offset="4" BitOffset="0" />
                 <Parameter Id="%AID%_UP-%TT%00002" Name="ProducerPort" ParameterType="%AID%_PT-EEXPort" Offset="0" BitOffset="0" Text="Modbus-Port Erzeuger (Wechselrichter)" Value="1502" />
               </Union>
-              <!-- EX 1 API IP (für Virtual-Switch-Polling) (Byte 6-37) -->
+              <!-- EX 1-API: IP-Adresse (Byte 6-37) -->
               <Union SizeInBit="256">
                 <Memory CodeSegment="%MID%" Offset="6" BitOffset="0" />
-                <Parameter Id="%AID%_UP-%TT%00003" Name="EX1ApiIp" ParameterType="%AID%_PT-EEXString32" Offset="0" BitOffset="0" Text="EX 1 API IP-Adresse" Value="" />
+                <Parameter Id="%AID%_UP-%TT%00003" Name="EX1ApiIp" ParameterType="%AID%_PT-EEXString32" Offset="0" BitOffset="0" Text="IP-Adresse" Value="" />
               </Union>
-              <!-- Virtual-Switch Poll-Intervall (Byte 38-39) -->
+              <!-- EX 1-API: Abfrageintervall für Virtual Switch, Messwerte und Gerätewerte (Byte 38-39) -->
               <Union SizeInBit="16">
                 <Memory CodeSegment="%MID%" Offset="38" BitOffset="0" />
-                <Parameter Id="%AID%_UP-%TT%00004" Name="SwitchPollInterval" ParameterType="%AID%_PT-EEXTimeout" Offset="0" BitOffset="0" Text="Virtual-Switch Poll-Intervall (0 = aus)" SuffixText=" s" Value="5" />
+                <Parameter Id="%AID%_UP-%TT%00004" Name="SwitchPollInterval" ParameterType="%AID%_PT-EEXTimeout" Offset="0" BitOffset="0" Text="Abfrageintervall (0 = aus)" SuffixText=" s" Value="5" />
               </Union>
               <!-- EX 1-API: Protokoll (Byte 66) -->
               <Union SizeInBit="8">
                 <Memory CodeSegment="%MID%" Offset="66" BitOffset="0" />
-                <Parameter Id="%AID%_UP-%TT%00027" Name="EX1ApiProtocol" ParameterType="%AID%_PT-EEXApiProtocol" Offset="0" BitOffset="0" Text="Protokoll" Value="1" />
+                <Parameter Id="%AID%_UP-%TT%00027" Name="EX1ApiProtocol" ParameterType="%AID%_PT-EEXApiProtocol" Offset="0" BitOffset="0" Text="Protokoll" Value="0" />
               </Union>
-              <!-- EX 1-API: API-Key, nur bei HTTPS (Byte 67-106) -->
+              <!-- EX 1-API: API-Key, bei HTTP und HTTPS (Byte 67-106) -->
               <Union SizeInBit="320">
                 <Memory CodeSegment="%MID%" Offset="67" BitOffset="0" />
                 <Parameter Id="%AID%_UP-%TT%00028" Name="EX1ApiKey" ParameterType="%AID%_PT-EEXString40" Offset="0" BitOffset="0" Text="API-Key (leer = ohne Authentifizierung)" Value="" />
@@ -241,7 +243,6 @@
               </Union>
             </Parameters>
             <ParameterRefs>
-              <ParameterRef Id="%AID%_UP-%TT%00000_R-%TT%0000001" RefId="%AID%_UP-%TT%00000" />
               <ParameterRef Id="%AID%_UP-%TT%00001_R-%TT%0000101" RefId="%AID%_UP-%TT%00001" />
               <ParameterRef Id="%AID%_UP-%TT%00002_R-%TT%0000201" RefId="%AID%_UP-%TT%00002" />
               <ParameterRef Id="%AID%_UP-%TT%00003_R-%TT%0000301" RefId="%AID%_UP-%TT%00003" />
@@ -295,7 +296,7 @@
             <ComObjectTable>
               <!-- Globales Status-KO 0: EX 1 liest aktiv (Modbus, DPT 1.011) -->
               <ComObject Id="%AID%_O-%TT%00000" Number="0" Name="ModbusActive" Text="" FunctionText="" ObjectSize="1 Bit" DatapointType="DPST-1-11" ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" />
-              <!-- Globales Status-KO 1: EX 1-API erreichbar (Virtual-Switch-Poll, DPT 1.011) -->
+              <!-- Globales Status-KO 1: EX 1-API erreichbar (API-Abfrage, DPT 1.011) -->
               <ComObject Id="%AID%_O-%TT%00001" Number="1" Name="ApiReachable" Text="" FunctionText="" ObjectSize="1 Bit" DatapointType="DPST-1-11" ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" />
               <!-- EX 1 Messwerte (API -> KNX): globale System-Werte -->
               <ComObject Id="%AID%_O-%TT%00002" Number="2" Name="PvPower"      Text="" FunctionText="" ObjectSize="4 Bytes" DatapointType="DPST-14-56" ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" />
@@ -332,18 +333,12 @@
                 <ParameterRefRef IndentLevel="1" RefId="%AID%_UP-%TT%00001_R-%TT%0000101" HelpContext="EEX-Modbus-Server-Ports" />
                 <ParameterRefRef IndentLevel="1" RefId="%AID%_UP-%TT%00002_R-%TT%0000201" HelpContext="EEX-Modbus-Server-Ports" />
                 <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
-                <ParameterSeparator Id="%AID%_PS-nnn" Text="Virtual Switch (Schalten, EX 1 → KNX)" UIHint="Headline" />
-                <ParameterRefRef IndentLevel="1" RefId="%AID%_UP-%TT%00003_R-%TT%0000301" HelpContext="EEX-EX1-API" />
-                <ParameterRefRef IndentLevel="1" RefId="%AID%_UP-%TT%00027_R-%TT%0002701" HelpContext="EEX-EX1-API" />
-                <choose ParamRefId="%AID%_UP-%TT%00027_R-%TT%0002701">
-                  <when test="=1">
-                    <ParameterRefRef IndentLevel="2" RefId="%AID%_UP-%TT%00028_R-%TT%0002801" HelpContext="EEX-EX1-API" />
-                  </when>
-                </choose>
-                <ParameterRefRef IndentLevel="1" RefId="%AID%_UP-%TT%00004_R-%TT%0000401" HelpContext="EEX-EX1-API" />
-                <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
-                <ParameterSeparator Id="%AID%_PS-nnn" Text="Kanalauswahl" UIHint="Headline" />
-                <ParameterRefRef IndentLevel="1" RefId="%AID%_UP-%TT%00000_R-%TT%0000001" HelpContext="EEX-Kanalauswahl" />
+                <ParameterSeparator Id="%AID%_PS-nnn" Text="EX 1-API (Verbindung)" UIHint="Headline" />
+                <ParameterSeparator Id="%AID%_PS-nnn" Text="Gilt für Virtual Switch, EX 1 Messwerte und Gerätewerte." />
+                <ParameterRefRef IndentLevel="1" RefId="%AID%_UP-%TT%00003_R-%TT%0000301" HelpContext="EEX-EX-1-API" />
+                <ParameterRefRef IndentLevel="1" RefId="%AID%_UP-%TT%00027_R-%TT%0002701" HelpContext="EEX-EX-1-API" />
+                <ParameterRefRef IndentLevel="1" RefId="%AID%_UP-%TT%00028_R-%TT%0002801" HelpContext="EEX-EX-1-API" />
+                <ParameterRefRef IndentLevel="1" RefId="%AID%_UP-%TT%00004_R-%TT%0000401" HelpContext="EEX-EX-1-API" />
                 <ParameterSeparator Id="%AID%_PS-nnn" Text="" UIHint="HorizontalRuler" />
                 <ParameterSeparator Id="%AID%_PS-nnn" Text="Messwerte-Auswahl (EX 1 → KNX)" UIHint="Headline" />
                 <ParameterSeparator Id="%AID%_PS-nnn" Text="Einstellungen zu den gewählten Werten stehen auf der Seite 'EX 1 Messwerte'." />
@@ -372,7 +367,7 @@
                   </when>
                 </choose>
               </ParameterBlock>
-              <ParameterBlock Id="%AID%_PB-nnn" Name="EEXMeasurements" Text="EX 1 Messwerte" Icon="gauge" HelpContext="EEX-EX1-Messwerte">
+              <ParameterBlock Id="%AID%_PB-nnn" Name="EEXMeasurements" Text="EX 1 Messwerte" Icon="gauge" HelpContext="EEX-EX-1-Messwerte">
                 <ParameterSeparator Id="%AID%_PS-nnn" Text="EX 1 Messwerte (API → KNX)" UIHint="Headline" />
                 <ParameterSeparator Id="%AID%_PS-nnn" Text="Auswahl der gesendeten Werte auf der Seite Allgemein." />
                 <choose ParamRefId="%AID%_UP-%TT%00005_R-%TT%0000501">
@@ -469,15 +464,25 @@
                   </when>
                 </choose>
               </ParameterBlock>
-              <op:include href="EnergyEdgeModule.templ.xml" xpath="//Dynamic/ChannelIndependentBlock/*" type="template" prefix="EEX" IsInner="true" />
-              <choose ParamRefId="%AID%_UP-%TT%00000_R-%TT%0000001">
-                <when test="&lt;%N%">
-                  <ParameterBlock Id="%AID%_PB-nnn" Name="EEXAdditionalChannels" Text="(mehr)" Icon="dots-horizontal">
-                    <ParameterSeparator Id="%AID%_PS-nnn" Text="Kanalauswahl" UIHint="Headline" />
-                    <ParameterRefRef RefId="%AID%_UP-%TT%00000_R-%TT%0000001" />
-                  </ParameterBlock>
-                </when>
-              </choose>
+              <!-- Kanalauswahl: je Kanal eine einzeilige Tabelle (OpenKNX-Standard) -->
+              <ParameterBlock Id="%AID%_PB-nnn" Name="EEXChannelSelect" Text="Kanalauswahl" Icon="format-list-bulleted-type" HelpContext="BASE-ChannelSelect">
+                <ParameterBlock Id="%AID%_PB-nnn" Inline="true" Layout="Grid">
+                  <Rows>
+                    <Row Id="%AID%_PB-nnn_R-1" />
+                  </Rows>
+                  <Columns>
+                    <Column Id="%AID%_PB-nnn_C-1" Width="15%" />
+                    <Column Id="%AID%_PB-nnn_C-2" Width="35%" />
+                    <Column Id="%AID%_PB-nnn_C-3" Width="50%" />
+                  </Columns>
+                  <ParameterSeparator Id="%AID%_PS-nnn" Cell="1,1" UIHint="Headline" Text="Kanal" />
+                  <ParameterSeparator Id="%AID%_PS-nnn" Cell="1,2" UIHint="Headline" Text="Kategorie" />
+                  <ParameterSeparator Id="%AID%_PS-nnn" Cell="1,3" UIHint="Headline" Text="Beschreibung" />
+                </ParameterBlock>
+                <op:include href="EnergyEdgeModule.templ.xml" xpath="//Dynamic/ChannelIndependentBlock/ParameterBlock[@Name='Settings']/*" type="template" prefix="EEX" IsInner="true" />
+              </ParameterBlock>
+              <!-- Kanal-Tabs (nur Kanäle mit gewählter Kategorie) -->
+              <op:include href="EnergyEdgeModule.templ.xml" xpath="//Dynamic/ChannelIndependentBlock/ParameterBlock[@Name='Channel']/*" type="template" prefix="EEX" IsInner="true" />
             </Channel>
           </Dynamic>
         </ApplicationProgram>
