@@ -9,6 +9,9 @@ Batterie) auf den KNX-Bus.
 
 Die vollständige Historie liegt in [CHANGELOG.md](CHANGELOG.md).
 
+- 0.8.0 Kanalauswahl nach OpenKNX-Standard (Kategorie mit „Deaktiviert", **nicht abwärtskompatibel**), EX 1-API: API-Key auch über HTTP, Voreinstellung HTTP, Verbindungseinstellungen allgemein benannt
+- 0.7.0 Netzleistung und Gerätewerte (Leistung, Temperatur, Störung) aus `devices[]`
+- 0.6.0 EX 1-API: Protokoll HTTP/HTTPS und API-Key
 - 0.5.0 Smart Meter: Bezug und Einspeisung (DPT 13.013) an den EX.1
 - 0.4.0 Status-KOs ausblendbar, Binärgewichte im Energieregister-Probe, Fix für Kanäle jenseits von „Aktive Kanäle"
 - 0.3.0 EX.1-Messwerte (PV/Verbrauch/Batterie/SoC → KNX), Sentinel-Diagnose für Smart-Meter-Energieregister
@@ -88,7 +91,7 @@ In das Anwendungs-XML muss das OFM-EnergyEdgeModule aufgenommen werden:
     NumChannels="20"
     KoSingleOffset="703"
     KoOffset="709">
-    <op:verify File="../lib/OFM-EnergyEdgeModule/library.json" ModuleVersion="0.5" />
+    <op:verify File="../lib/OFM-EnergyEdgeModule/library.json" ModuleVersion="0.8" />
   </op:define>
 ```
 

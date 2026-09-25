@@ -1,5 +1,57 @@
 # Changelog OFM-EnergyEdgeModule
 
+## 0.8.0 - 2026-09-25
+
+### Breaking
+- **Kanalauswahl nach OpenKNX-Standard.** Der Schieberegler „Aktive Kanäle" und der Tab
+  „(mehr)" entfallen. Kanäle werden auf der neuen Seite **Kanalauswahl** über die Kategorie
+  aktiviert. Die Kategorie hat dafür den neuen Wert **0 = Deaktiviert**, die bisherigen Werte
+  rücken um eins nach oben (1 = Energiemessung, 2 = Smart Meter, 3 = Schalter/Virtual Switch,
+  4 = Wechselrichter). **Bestehende Projekte: Applikation in der ETS aktualisieren, je Kanal
+  die Kategorie in der Kanalauswahl neu setzen und das Gerät neu programmieren.**
+
+### Added
+- Seite **Kanalauswahl** (je Kanal eine Tabellenzeile: Kanal, Kategorie, Beschreibung).
+  Deaktivierte Kanäle erscheinen nicht im ETS-Baum und werden von der Firmware nicht
+  angelegt. Die Kategorie lässt sich zusätzlich auf dem Kanal-Tab wechseln (synchronisiert
+  über `BASE_SyncChannelType`).
+- Hilfetexte werden aus der Applikationsbeschreibung erzeugt: VS-Code-Task
+  „OpenKNXproducer Documentation" (`.vscode/tasks.json`).
+
+### Changed
+- Seite „Allgemein": Die Verbindungseinstellungen stehen unter **„EX 1-API (Verbindung)"**
+  statt „Virtual Switch", da sie für Virtual Switch, Messwerte und Gerätewerte gelten. Das
+  Intervall heißt **„Abfrageintervall"**.
+- Protokoll-Voreinstellung ist jetzt **HTTP**. Der EX 1 nimmt HTTPS nur mit TLS 1.3 an; das
+  unterstützen weder RP2040 (BearSSL) noch ESP32 (mbedTLS) derzeit.
+- Das Feld **API-Key** ist bei beiden Protokollen sichtbar.
+- Kanal-Tab beginnt mit „Kanaldefinition" (Beschreibung, Kategorie); das Feld „Bezeichnung"
+  heißt jetzt „Beschreibung".
+
+### Fixed
+- **Keine Verbindung zur EX 1-API über HTTP:** Der Header `x-api-key` wurde nur bei HTTPS
+  gesendet. Ist im EX 1 ein API-Key hinterlegt, verlangt er ihn aber auch über HTTP und
+  antwortet sonst mit 401.
+- Statusobjekt „EX 1-API erreichbar" wird jetzt auch aktualisiert, wenn nur Messwerte oder
+  Gerätewerte (ohne Virtual-Switch-Kanal) die API nutzen.
+
+## 0.7.0 - 2026-07-31
+
+### Added
+- **Netzleistung** (Bezug positiv, Einspeisung negativ), abgeleitet aus Verbrauch,
+  PV-Leistung und Batterie-Leistung.
+- **Gerätewerte** aus `devices[]` der EX 1-API: Geräteleistung, Gerätetemperatur und
+  Gerätestörung, je Wert mit eigener Geräte-ID (`_id`).
+
+### Changed
+- Schreibweise „EX 1" statt „EX.1" in den Hilfetexten.
+
+## 0.6.0 - 2026-07-24
+
+### Added
+- EX 1-API: Auswahl des **Protokolls** (HTTP/HTTPS) und Feld für den **API-Key**
+  (Header `x-api-key`).
+
 ## 0.5.0 - 2026-07-22
 
 ### Added
