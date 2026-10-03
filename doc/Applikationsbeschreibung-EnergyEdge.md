@@ -96,6 +96,13 @@ Kanal nur in der Kanalauswahl.
 
 # Kanaleinstellungen
 
+## Suspendiert
+
+Legt einen fertig parametrierten Kanal still: Er bleibt mit allen Einstellungen und
+Verknüpfungen erhalten, registriert aber keinen Modbus-Worker und wird nicht ausgeführt.
+Suspendierte Kanäle tragen im ETS-Baum ein ⛔ vor der Beschreibung. Ausführlich beschrieben ist
+der Parameter in der gemeinsamen Hilfeseite *Suspendiert*.
+
 <!-- DOC -->
 ## Modbus-Profil
 

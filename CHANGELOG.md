@@ -1,5 +1,17 @@
 # Changelog OFM-EnergyEdgeModule
 
+## 0.9.0 - 2026-09-28
+
+### Breaking
+- Der Kanal-Parameterblock wächst von 105 auf 106 Byte (neues Byte für **Suspendiert**).
+  **Bestehende Projekte: Applikation in der ETS aktualisieren und das Gerät neu programmieren.**
+
+### Added
+- Kanal-Parameter **Suspendiert** (Nein/Ja) im Kanaldefinitions-Block jedes Kanals. Der Kanal
+  bleibt vollständig parametriert, registriert aber keinen Modbus-Worker und wird nicht
+  ausgeführt — hilfreich bei der Fehlersuche. Suspendierte Kanäle tragen im ETS-Baum ein
+  **⛔** vor der Beschreibung.
+
 ## 0.8.0 - 2026-09-25
 
 ### Breaking

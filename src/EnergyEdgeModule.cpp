@@ -31,10 +31,10 @@ const std::string EnergyEdgeModule::version()
 
 OpenKNX::Channel* EnergyEdgeModule::createChannel(uint8_t _channelIndex /* used in macros, do not rename */)
 {
-    // Nur aktivierte Kanäle anlegen. Deaktivierte Kanäle sind in der ETS nicht sichtbar und
+    // Nur aktivierte, nicht suspendierte Kanäle anlegen. Deaktivierte Kanäle sind in der ETS nicht sichtbar und
     // haben deshalb keine gültige Konfiguration (Unit-ID 0). Sie dürfen keinen Modbus-Worker
     // registrieren - Unit-ID 0 ist in Modbus Broadcast/ungültig.
-    if (ParamEEX_CHCategory == EEX_CAT_DISABLED)
+    if (ParamEEX_CHCategory == EEX_CAT_DISABLED || ParamEEX_CHSuspended)
         return nullptr;
 
     // Kategorie bestimmt Kanalklasse/Richtung.
