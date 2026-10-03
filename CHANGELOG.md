@@ -12,6 +12,9 @@
   ausgeführt — hilfreich bei der Fehlersuche. Suspendierte Kanäle tragen im ETS-Baum ein
   **⛔** vor der Beschreibung.
 
+### Changed
+- Objektfunktionen der Modulebene zeigen Eingang/Ausgang: „EX 1: Ausgang, Leistung (W)“ statt „EX 1 Messwert“.
+
 ## 0.8.0 - 2026-09-25
 
 ### Breaking
